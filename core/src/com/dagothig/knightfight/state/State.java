@@ -4,9 +4,6 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
-/**
- * Created by dagothig on 8/23/14.
- */
 public abstract class State<StateArgs> implements InputProcessor {
     public static final float TRANSITION_SHORT = 250;
     public static final float TRANSITION_MEDIUM = 500;
