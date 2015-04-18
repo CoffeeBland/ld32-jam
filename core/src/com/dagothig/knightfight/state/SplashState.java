@@ -10,7 +10,7 @@ import com.dagothig.knightfight.res.Textures;
  */
 public class SplashState extends AutoSwitchState {
     @Override protected float getDuration() { return 2000; }
-    @Override protected Class<? extends State> getNextStateClass() { return GameState.class; }
+    @Override protected Class<? extends State> getNextStateClass() { return PlayerState.class; }
     @Override protected Color getTransitionColor() { return new Color(0xefe8e0ff); }
     @Override protected float getTransitionDuration() { return TRANSITION_MEDIUM; }
 
