@@ -12,9 +12,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-/**
- * Created by dagothig on 4/18/15.
- */
 public class PlayerState extends State<Void> implements ControllerListener {
 
     public List<Player> players = new ArrayList<>();

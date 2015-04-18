@@ -5,11 +5,7 @@ import com.badlogic.gdx.controllers.ControllerListener;
 import com.badlogic.gdx.controllers.PovDirection;
 import com.badlogic.gdx.math.Vector3;
 
-/**
- * Created by dagothig on 4/18/15.
- */
 public class Player implements ControllerListener {
-
     public Damsel damsel;
 
     public Player(Controller controller) {
