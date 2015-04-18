@@ -1,6 +1,8 @@
 package com.dagothig.knightfight.state;
 
 import com.badlogic.gdx.controllers.*;
+import com.badlogic.gdx.controllers.Controller;
+import com.badlogic.gdx.controllers.ControllerListener;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector3;
 import com.dagothig.knightfight.game.Player;

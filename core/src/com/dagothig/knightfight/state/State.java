@@ -1,13 +1,13 @@
 package com.dagothig.knightfight.state;
 
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.dagothig.knightfight.input.InputDispatcher;
 
 /**
  * Created by dagothig on 8/23/14.
  */
-public abstract class State<StateArgs> {
+public abstract class State<StateArgs> implements InputProcessor {
     public static final float TRANSITION_SHORT = 250;
     public static final float TRANSITION_MEDIUM = 500;
     public static final float TRANSITION_LONG = 1000;
@@ -16,15 +16,6 @@ public abstract class State<StateArgs> {
 
     protected StateManager stateManager;
     protected Color backgroundColor;
-    protected InputDispatcher inputManager;
-
-
-    public InputDispatcher getInputManager() {
-        if (inputManager == null) {
-            inputManager = new InputDispatcher();
-        }
-        return inputManager;
-    }
 
     public void setStateManager(StateManager stateManager) {
         this.stateManager = stateManager;
@@ -55,4 +46,43 @@ public abstract class State<StateArgs> {
     public void onTransitionInFinish() {}
     public void onTransitionOutStart() {}
     public void onTransitionOutFinish() {}
+
+    @Override
+    public boolean keyDown(int keycode) {
+        return false; }
+
+    @Override
+    public boolean keyUp(int keycode) {
+        return false;
+    }
+
+    @Override
+    public boolean keyTyped(char character) {
+        return false;
+    }
+
+    @Override
+    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+        return false;
+    }
+
+    @Override
+    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+        return false;
+    }
+
+    @Override
+    public boolean touchDragged(int screenX, int screenY, int pointer) {
+        return false;
+    }
+
+    @Override
+    public boolean mouseMoved(int screenX, int screenY) {
+        return false;
+    }
+
+    @Override
+    public boolean scrolled(int amount) {
+        return false;
+    }
 }

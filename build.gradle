@@ -28,6 +28,12 @@ allprojects {
     }
 }
 
+idea {
+    project {
+        languageLevel = '1.7'
+    }
+}
+
 project(":desktop") {
     apply plugin: "java"
 
@@ -44,7 +50,6 @@ project(":desktop") {
 
 project(":core") {
     apply plugin: "java"
-
 
     dependencies {
         compile "com.badlogicgames.gdx:gdx:$gdxVersion"

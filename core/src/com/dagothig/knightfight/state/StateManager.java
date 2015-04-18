@@ -105,7 +105,7 @@ public class StateManager {
                 }
                 if (nextState != null) {
                     nextState.onTransitionInStart(isNewState, switchArgs);
-                    Gdx.input.setInputProcessor(nextState.getInputManager());
+                    Gdx.input.setInputProcessor(nextState);
                 }
                 currentState = nextState;
                 hasSwitched = true;
@@ -115,7 +115,6 @@ public class StateManager {
     public void update(float delta) {
         updateTransition(delta);
         if (currentState != null) {
-            currentState.getInputManager().update(delta);
             currentState.update(delta);
         }
     }

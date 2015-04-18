@@ -4,7 +4,6 @@ import com.badlogic.gdx.controllers.Controller;
 import com.badlogic.gdx.controllers.ControllerListener;
 import com.badlogic.gdx.controllers.PovDirection;
 import com.badlogic.gdx.math.Vector3;
-import sun.rmi.runtime.Log;
 
 /**
  * Created by dagothig on 4/18/15.
