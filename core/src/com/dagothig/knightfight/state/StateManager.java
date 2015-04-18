@@ -37,7 +37,7 @@ public class StateManager {
         }
 
         if (transitionColor == null) {
-            transitionColor = Color.BLACK;
+            transitionColor = Color.BLACK.cpy();
         }
 
         // Get state
@@ -72,7 +72,7 @@ public class StateManager {
         Gdx.input.setInputProcessor(null);
     }
     public void switchToState(Class<? extends State> stateType, Color transitionColor, float transitionLength) {
-        switchToState(stateType, transitionColor, transitionLength, null);
+        switchToState(stateType, transitionColor.cpy(), transitionLength, null);
     }
 
     private void renderTransition(SpriteBatch batch) {

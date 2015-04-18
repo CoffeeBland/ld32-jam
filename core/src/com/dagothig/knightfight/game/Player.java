@@ -10,10 +10,12 @@ import com.badlogic.gdx.math.Vector3;
  */
 public class Player implements ControllerListener {
 
+    public Controller controller;
     public Damsel damsel;
 
     public Player(Controller controller) {
-        controller.addListener(this);
+        (this.controller = controller).addListener(this);
+        damsel = new Damsel();
     }
 
     @Override

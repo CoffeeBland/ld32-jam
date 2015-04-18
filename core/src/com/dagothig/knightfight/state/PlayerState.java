@@ -1,34 +1,54 @@
 package com.dagothig.knightfight.state;
 
-import com.badlogic.gdx.controllers.*;
 import com.badlogic.gdx.controllers.Controller;
-import com.badlogic.gdx.controllers.ControllerListener;
+import com.badlogic.gdx.controllers.ControllerAdapter;
+import com.badlogic.gdx.controllers.Controllers;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Vector3;
 import com.dagothig.knightfight.game.Player;
+import com.dagothig.knightfight.input.XboxMappings;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Created by dagothig on 4/18/15.
  */
-public class PlayerState extends State<Void> implements ControllerListener {
+public class PlayerState extends State<Void> {
 
     public List<Player> players = new ArrayList<>();
+    public List<Controller> controllers = new ArrayList<>();
+    public BitmapFont font;
 
     @Override
     public void onTransitionInStart(boolean firstTransition, Void aVoid) {
         super.onTransitionInStart(firstTransition, aVoid);
-        Controllers.addListener(this);
+
+        for (Controller controller: Controllers.getControllers()) {
+            controllers.add(controller);
+            controller.addListener(new ControllerAdapter() {
+                @Override
+                public boolean buttonDown(Controller controller, int buttonIndex) {
+                    switch (XboxMappings.Button.getButton(buttonIndex)) {
+                        case START:
+                            // Require at least two player before being available
+                            if (readyForPlayer()) break;
+                            for (Player player : players) player.controller.removeListener(this);
+                            switchToState(GameState.class, Color.WHITE, TRANSITION_MEDIUM, players);
+                            break;
+                        case A:
+                            players.add(new Player(controller));
+                            break;
+                    }
+                    return false;
+                }
+            });
+        }
     }
 
-    @Override
-    public void onTransitionOutStart() {
-        super.onTransitionOutStart();
-        Controllers.removeListener(this);
+    public boolean readyForPlayer() {
+        return players.size() > 2;
     }
 
     @Override
@@ -36,27 +56,12 @@ public class PlayerState extends State<Void> implements ControllerListener {
         return false;
     }
 
-    Set<Controller> controllahs = new HashSet<>();
+    @Override
+    public void render(SpriteBatch batch) {
+        //font.draw(batch, players.size());
+    }
+    @Override
+    public void update(float delta) {
 
-    @Override public void render(SpriteBatch batch) { }
-    @Override public void update(float delta) {
-        for (Controller controller : Controllers.getControllers()) {
-            if (controllahs.add(controller)) {
-                controller.addListener(this);
-            }
-        }
     }
-    @Override public void connected(Controller controller) {
-        System.out.println("Connected");
-    }
-    @Override public void disconnected(Controller controller) {
-        System.out.println("Disconnected");
-    }
-    @Override public boolean buttonDown(Controller controller, int buttonCode) { return false; }
-    @Override public boolean buttonUp(Controller controller, int buttonCode) { return false; }
-    @Override public boolean axisMoved(Controller controller, int axisCode, float value) { return false; }
-    @Override public boolean povMoved(Controller controller, int povCode, PovDirection value) { return false; }
-    @Override public boolean xSliderMoved(Controller controller, int sliderCode, boolean value) { return false; }
-    @Override public boolean ySliderMoved(Controller controller, int sliderCode, boolean value) { return false; }
-    @Override public boolean accelerometerMoved(Controller controller, int accelerometerCode, Vector3 value) { return false; }
 }
