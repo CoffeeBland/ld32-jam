@@ -2,6 +2,7 @@ package com.dagothig.knightfight.state;
 
 import com.badlogic.gdx.controllers.Controller;
 import com.badlogic.gdx.controllers.ControllerAdapter;
+import com.badlogic.gdx.controllers.ControllerListener;
 import com.badlogic.gdx.controllers.Controllers;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -12,18 +13,14 @@ import com.dagothig.knightfight.input.XboxMappings;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by dagothig on 4/18/15.
- */
-public class PlayerState extends State<Void> {
-
+public class PlayerState extends State<Integer> {
     public List<Player> players = new ArrayList<>();
     public List<Controller> controllers = new ArrayList<>();
     public BitmapFont font;
 
     @Override
-    public void onTransitionInStart(boolean firstTransition, Void aVoid) {
-        super.onTransitionInStart(firstTransition, aVoid);
+    public void onTransitionInStart(boolean firstTransition, Integer id) {
+        super.onTransitionInStart(firstTransition, id);
 
         for (Controller controller: Controllers.getControllers()) {
             controllers.add(controller);

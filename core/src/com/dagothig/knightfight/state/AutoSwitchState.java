@@ -2,9 +2,6 @@ package com.dagothig.knightfight.state;
 
 import com.badlogic.gdx.graphics.Color;
 
-/**
- * Created by dagothig on 11/2/14.
- */
 public abstract class AutoSwitchState extends State<Integer> {
     private float remainingTime = getDuration();
     private boolean hasSwitched = false;

@@ -8,9 +8,6 @@ import com.dagothig.knightfight.res.Textures;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by dagothig on 8/23/14.
- */
 @SuppressWarnings("unchecked")
 public class StateManager {
     public StateManager(Class<? extends State> initialState) {
@@ -86,6 +83,8 @@ public class StateManager {
     }
     public void render(SpriteBatch batch) {
         if (currentState != null) {
+            batch.setColor(currentState.getBackgroundColor());
+            batch.draw(Textures.whitePixel, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
             currentState.render(batch);
         }
         renderTransition(batch);
