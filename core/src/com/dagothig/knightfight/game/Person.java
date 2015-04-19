@@ -174,18 +174,17 @@ public abstract class Person extends Actor {
 
     @Override
     public void render(SpriteBatch batch, Camera camera, Vector3 pos) {
-        Vector2 camPos = camera.getPosition();
         orientation %= Math.PI * 2;
         while (orientation < 0) orientation += Math.PI * 2;
 
         batch.setColor(shadowColor);
-        batch.draw(shadow, pos.x - (shadow.getWidth() / 2) - camPos.x, pos.y - shadow.getHeight() - camPos.y);
+        batch.draw(shadow, pos.x - (shadow.getWidth() / 2), pos.y - shadow.getHeight());
         batch.setColor(Color.WHITE);
 
         mainTexture.setFrameX(getFrameX(orientation));
         mainTexture.renderSheet(batch,
-                Math.round(pos.x - mainShiftX) - camPos.x,
-                Math.round(pos.y - mainShiftY + pos.z) - camPos.y,
+                Math.round(pos.x - mainShiftX),
+                Math.round(pos.y - mainShiftY + pos.z),
                 getImageFlipped(orientation), 1);
     }
 

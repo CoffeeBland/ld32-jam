@@ -48,6 +48,7 @@ public class World {
     }
 
     public void render(SpriteBatch batch) {
+        batch.setProjectionMatrix(camera.getPosition());
         for (WorldLayer layer : layers) {
             layer.render(batch, camera);
         }
