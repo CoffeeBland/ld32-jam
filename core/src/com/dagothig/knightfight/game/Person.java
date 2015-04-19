@@ -173,7 +173,7 @@ public abstract class Person extends Actor {
     }
 
     @Override
-    public void render(SpriteBatch batch, Camera camera, Vector3 pos) {
+    public void render(SpriteBatch batch, Vector3 pos) {
         orientation %= Math.PI * 2;
         while (orientation < 0) orientation += Math.PI * 2;
 
