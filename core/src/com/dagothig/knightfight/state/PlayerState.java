@@ -153,7 +153,6 @@ public class PlayerState extends State<Void> {
                     players.remove(index);
                     playerGlyphLayouts.remove(index);
                     pair.first.removeListener(pair.second.player);
-                    pair.first.destruct();
                     pair.second.player = null;
                 }
             }

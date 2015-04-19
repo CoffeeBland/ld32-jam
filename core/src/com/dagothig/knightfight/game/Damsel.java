@@ -41,9 +41,9 @@ public class Damsel extends Person {
 
         // Render to a framebuffer
         SpriteBatch batch = new SpriteBatch();
-        FrameBuffer fb = new FrameBuffer(Pixmap.Format.RGBA8888, dress.getWidth(), dress.getHeight(), false);
+        FrameBuffer fb = new FrameBuffer(Pixmap.Format.RGBA8888, dress.getWidth(), dress.getHeight(), true);
         batch.enableBlending();
-        batch.setBlendFunction(Gdx.gl.GL_SRC_ALPHA, Gdx.gl.GL_FUNC_ADD);
+        batch.setBlendFunction(Gdx.gl.GL_SRC_ALPHA, Gdx.gl.GL_ONE_MINUS_SRC_ALPHA);
         batch.setProjectionMatrix(new Matrix4().setToOrtho2D(0, 0, fb.getWidth(), fb.getHeight()));
         fb.begin();
         batch.begin();
