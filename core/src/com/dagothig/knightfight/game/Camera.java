@@ -1,7 +1,8 @@
 package com.dagothig.knightfight.game;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.math.Matrix4;
 
 import java.util.List;
 
@@ -9,11 +10,12 @@ public class Camera {
     public static final int WORLD_WIDTH = 2000;
     public static final int WORLD_HEIGHT = 2000;
 
-    protected Vector2 pos = new Vector2(0, 0);
+    protected OrthographicCamera innerCamera = new OrthographicCamera();
 
     public void update(List<Player> players) {
         int offsetMaxX = WORLD_WIDTH - Gdx.graphics.getWidth();
         int offsetMaxY = WORLD_HEIGHT - Gdx.graphics.getHeight();
+        innerCamera.setToOrtho(false, WORLD_WIDTH, WORLD_HEIGHT);
 
         int offsetMinX = 0;
         int offsetMinY = 0;
@@ -34,10 +36,14 @@ public class Camera {
         if (camY > offsetMaxY) camY = offsetMaxY;
         if (camY < offsetMinY) camY = offsetMinY;
 
-        pos.add(camX-pos.x * 0.2f, camY-pos.y * 0.2f);
+        innerCamera.translate(
+            camX-innerCamera.position.x * 0.2f,
+            camY-innerCamera.position.y * 0.2f
+        );
+        innerCamera.update();
     }
 
-    public Vector2 getPosition() {
-        return this.pos;
+    public Matrix4 getPosition() {
+        return this.innerCamera.combined;
     }
 }

@@ -2,6 +2,7 @@ package com.dagothig.knightfight.state;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.dagothig.knightfight.game.Camera;
 import com.dagothig.knightfight.game.Player;
 import com.dagothig.knightfight.game.World;
 import com.dagothig.knightfight.game.WorldLoader;
@@ -28,7 +29,9 @@ public class GameState extends State<Pair<List<Player>, List<KnightFightKbdContr
         this.keyboardControllers = payload.second;
         world = WorldLoader.loadMapByName("map1");
         for (Player player : payload.first) {
-            player.damsel.pos.add(400 * (float)Math.random(), 400 * (float)Math.random(), 0);
+            player.damsel.pos.add(
+                (Camera.WORLD_WIDTH/2) * ((float)Math.random()/2f),
+                (Camera.WORLD_HEIGHT/2) * ((float)Math.random()/2f), 0);
             world.addPlayer(player);
         }
     }
