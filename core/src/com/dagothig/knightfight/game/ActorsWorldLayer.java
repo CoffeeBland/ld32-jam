@@ -15,10 +15,10 @@ public class ActorsWorldLayer implements WorldLayer {
     };
 
     @Override
-    public void render(SpriteBatch batch) {
+    public void render(SpriteBatch batch, Camera camera) {
         Collections.sort(actors, ySorter);
         for (Actor actor : actors) {
-            actor.render(batch);
+            actor.render(batch, camera);
         }
     }
 

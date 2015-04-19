@@ -12,9 +12,6 @@ import com.dagothig.knightfight.res.ImageSheet;
 import com.dagothig.knightfight.res.SheetAnimator;
 import com.dagothig.knightfight.res.Textures;
 
-/**
- * Created by dagothig on 4/18/15.
- */
 public class Damsel extends Person {
     public Color skinColor, robeHighlightColor, hairColor;
 

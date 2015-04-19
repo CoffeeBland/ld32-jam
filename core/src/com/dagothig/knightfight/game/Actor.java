@@ -3,9 +3,6 @@ package com.dagothig.knightfight.game;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector3;
 
-/**
- * Created by dagothig on 4/18/15.
- */
 public abstract class Actor {
     public final Vector3 pos = new Vector3();
 
@@ -13,8 +10,8 @@ public abstract class Actor {
     public abstract int getVisualHeight();
 
     public abstract void update(float delta, World world);
-    public void render(SpriteBatch batch) {
-        render(batch, pos);
+    public void render(SpriteBatch batch, Camera camera) {
+        render(batch, camera, pos);
     }
-    public abstract void render(SpriteBatch batch, Vector3 pos);
+    public abstract void render(SpriteBatch batch, Camera camera, Vector3 pos);
 }

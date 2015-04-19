@@ -15,7 +15,7 @@ public class KnightFightKbdController extends KnightFightController implements I
         switch (keycode) {
             case Input.Keys.W:
                 activeAxis = KnightFightMappings.Axis.LEFT_VERTICAL;
-                axisValue = (isDown ? 1f : 0);
+                axisValue = (isDown ? -1f : 0);
                 break;
             case Input.Keys.A:
                 activeAxis = KnightFightMappings.Axis.LEFT_HORIZONTAL;
@@ -23,7 +23,7 @@ public class KnightFightKbdController extends KnightFightController implements I
                 break;
             case Input.Keys.S:
                 activeAxis = KnightFightMappings.Axis.LEFT_VERTICAL;
-                axisValue = (isDown ? -1f : 0);
+                axisValue = (isDown ? 1f : 0);
                 break;
             case Input.Keys.D:
                 activeAxis = KnightFightMappings.Axis.LEFT_HORIZONTAL;

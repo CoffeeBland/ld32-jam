@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector3;
+import com.dagothig.knightfight.game.Camera;
 import com.dagothig.knightfight.game.Player;
 import com.dagothig.knightfight.input.*;
 import com.dagothig.knightfight.res.Textures;
@@ -21,6 +22,7 @@ import static com.dagothig.knightfight.util.Dimensions.MIN_LADY_CELL_IMG_WIDTH;
 import static com.dagothig.knightfight.util.Dimensions.PADDING;
 
 public class PlayerState extends State<Void> {
+    protected Camera camera = new Camera(); // just so dont create it in render 1000x times
     public List<Player> players = new ArrayList<>();
     public List<KnightFightKbdController> keyboardControllers = new ArrayList<>();
     public List<Pair<? extends KnightFightController, PlayerControllerListener>> controllerListenerPairs = new ArrayList<>();
@@ -120,7 +122,7 @@ public class PlayerState extends State<Void> {
                 Vector3 pos = VectorPool.V3();
                 pos.x = ladyCellImgWidth / 2;
                 pos.y = cellTop - heightPerCell / 2 - player.damsel.getVisualHeight() / 2;
-                player.damsel.render(batch, pos);
+                player.damsel.render(batch, camera, pos);
                 VectorPool.claim(pos);
 
                 // Text

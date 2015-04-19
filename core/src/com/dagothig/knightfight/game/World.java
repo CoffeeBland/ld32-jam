@@ -8,13 +8,16 @@ import java.util.List;
 public class World {
     protected List<WorldPolygon> polygons = new ArrayList<>();
     protected List<WorldLayer> layers = new ArrayList<>();
+    protected List<Player> players = new ArrayList<>();
+    protected Camera camera;
     protected ActorsWorldLayer actorsLayer;
 
     public float airFriction = 0.98f;
     public float groundFriction = 0.9f;
-    public float gravity = 0.75f;
+    public float gravity = 1.75f;
 
     public World() {
+        this.camera = new Camera();
     }
 
     public void add(Actor actor) {
@@ -37,19 +40,34 @@ public class World {
     }
 
     public void update(float delta) {
-        for (WorldLayer layer : layers) {
+        camera.update(players);
+
+        for (WorldLayer layer : getLayers()) {
             layer.update(delta, this);
         }
     }
 
     public void render(SpriteBatch batch) {
         for (WorldLayer layer : layers) {
-            layer.render(batch);
+            layer.render(batch, camera);
         }
     }
 
     public void addEmptyPlayersLayer() {
         actorsLayer = new ActorsWorldLayer();
         layers.add(actorsLayer);
+    }
+
+    public Camera getCamera() {
+        return this.camera;
+    }
+
+    public void addPlayer(Player player) {
+        this.players.add(player);
+        this.add(player.damsel);
+    }
+
+    public List<Player> getPlayers() {
+        return players;
     }
 }

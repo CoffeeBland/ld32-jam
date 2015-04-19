@@ -13,7 +13,6 @@ import java.util.List;
 
 public class GameState extends State<Pair<List<Player>, List<KnightFightKbdController>>> {
     List<KnightFightKbdController> keyboardControllers = new ArrayList<>();
-    List<Player> players;
     World world;
 
     public GameState() {
@@ -27,11 +26,10 @@ public class GameState extends State<Pair<List<Player>, List<KnightFightKbdContr
         super.onTransitionInStart(firstTransition, payload);
 
         this.keyboardControllers = payload.second;
-        this.players = payload.first;
         world = WorldLoader.loadMapByName("map1");
-        for (Player player : players) {
+        for (Player player : payload.first) {
             player.damsel.pos.add(400 * (float)Math.random(), 400 * (float)Math.random(), 0);
-            world.add(player.damsel);
+            world.addPlayer(player);
         }
     }
 
