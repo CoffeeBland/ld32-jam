@@ -24,10 +24,10 @@ public class Camera {
         int sumOfPlayerYs = 0;
 
         // Used to scale/zoom camera
-        int playersMinX = 0;
-        int playersMaxX = 0;
-        int playersMinY = 0;
-        int playersMaxY = 0;
+        int playersMinX = Math.round(players.get(0).damsel.pos.x);
+        int playersMaxX = Math.round(players.get(0).damsel.pos.x);
+        int playersMinY = Math.round(players.get(0).damsel.pos.y);
+        int playersMaxY = Math.round(players.get(0).damsel.pos.y);
 
         for (Player p : players) {
             sumOfPlayerXs += p.damsel.pos.x;
@@ -46,7 +46,7 @@ public class Camera {
         if (camY > offsetMaxY) camY = offsetMaxY;
         if (camY < offsetMinY) camY = offsetMinY;
 
-        innerCamera.setToOrtho(false, playersMaxX - playersMinX + 800, playersMaxY - playersMinY + 800);
+        innerCamera.setToOrtho(false, playersMaxX - playersMinX + 1200, playersMaxY - playersMinY + 1200);
 
         innerCamera.translate(
             camX-innerCamera.position.x * 0.2f,

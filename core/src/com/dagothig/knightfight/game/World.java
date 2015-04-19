@@ -1,6 +1,7 @@
 package com.dagothig.knightfight.game;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.dagothig.knightfight.util.ColorUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +49,10 @@ public class World {
     }
 
     public void render(SpriteBatch batch) {
+        batch.draw(ColorUtil.whitePixel(), 100, 100, 0, 0, 1, 1900);
+        batch.draw(ColorUtil.whitePixel(), 100, 100, 0, 0, 1900, 1);
+        batch.draw(ColorUtil.whitePixel(), 1800, 1800, 0, 0, 1900, 1);
+        batch.draw(ColorUtil.whitePixel(), 1800, 1800, 0, 0, 1, 1900);
         batch.setProjectionMatrix(camera.getPosition());
         for (WorldLayer layer : layers) {
             layer.render(batch);
