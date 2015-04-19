@@ -17,4 +17,6 @@ public abstract class KnightFightController {
     public void removeAllListeners() {
         listeners = new ArrayList<>();
     }
+
+    public void destruct() {}
 }

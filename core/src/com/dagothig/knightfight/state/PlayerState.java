@@ -22,6 +22,7 @@ import static com.dagothig.knightfight.util.Dimensions.PADDING;
 
 public class PlayerState extends State<Void> {
     public List<Player> players = new ArrayList<>();
+    public List<KnightFightKbdController> keyboardControllers = new ArrayList<>();
     public List<Pair<? extends KnightFightController, PlayerControllerListener>> controllerListenerPairs = new ArrayList<>();
     public BitmapFont
             titleFont,
@@ -47,7 +48,7 @@ public class PlayerState extends State<Void> {
         ladiesFont.setColor(Color.WHITE.cpy());
 
         ladiesText = new GlyphLayout(titleFont, "Damsels");
-        infoText = new GlyphLayout(infoFont, "Press 'a' to join, 'start' to fight");
+        infoText = new GlyphLayout(infoFont, "Press 'a' to join, 'start' to fight ('space' and 'enter' on a keyboard)");
     }
 
     public boolean readyForPlayer() { return players.size() >= 1; }
@@ -57,10 +58,13 @@ public class PlayerState extends State<Void> {
     public void onTransitionInStart(boolean firstTransition, Void aVoid) {
         super.onTransitionInStart(firstTransition, aVoid);
 
-        // Add keyboard
+        // Add left keyboard controller
+        KnightFightKbdController keyboardController = new KnightFightKbdController();
         Pair<? extends KnightFightController, PlayerControllerListener> kbdpair =
-            new Pair<>(new KnightFightKbdController(), new PlayerControllerListener());
+            new Pair<>(keyboardController, new PlayerControllerListener());
+        kbdpair.first.addListener(kbdpair.second);
         controllerListenerPairs.add(kbdpair);
+        keyboardControllers.add(keyboardController);
 
         // Add all plugged in xbox controller
         for (Controller controller: Controllers.getControllers()) {
@@ -77,6 +81,7 @@ public class PlayerState extends State<Void> {
 
         for (Pair<? extends KnightFightController, ? extends KnightFightControllerListener> pair: controllerListenerPairs) {
             pair.first.removeListener(pair.second);
+            pair.first.destruct();
         }
     }
 
@@ -159,12 +164,14 @@ public class PlayerState extends State<Void> {
         @Override
         public boolean buttonDown(KnightFightController controller, KnightFightMappings.Button button) {
             if (dead || requestingPlayer) return false;
+
             switch (button) {
                 case START:
                     // Require at least two player before being available
                     if (!readyForPlayer()) return false;
                     dead = true;
-                    switchToState(GameState.class, Color.WHITE, TRANSITION_MEDIUM, players);
+                    switchToState(GameState.class, Color.WHITE, TRANSITION_MEDIUM,
+                        new Pair<>(players, keyboardControllers));
                     break;
                 case JOIN:
                     requestingPlayer = true;
@@ -182,5 +189,21 @@ public class PlayerState extends State<Void> {
         public boolean axisMoved(KnightFightController controller, KnightFightMappings.Axis axis, float value) {
             return false;
         }
+    }
+
+    @Override
+    public boolean keyUp(int keycode) {
+        for (KnightFightKbdController kfc : keyboardControllers) {
+            kfc.keyUp(keycode);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean keyDown(int keycode) {
+        for (KnightFightKbdController kfc : keyboardControllers) {
+            kfc.keyDown(keycode);
+        }
+        return false;
     }
 }

@@ -4,7 +4,8 @@ public class KnightFightMappings {
     public static enum Button {
         JUMP,
         JOIN,
-        START
+        START,
+        THROW
     }
 
     public static enum Axis {

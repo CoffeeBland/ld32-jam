@@ -29,6 +29,9 @@ public class KnightFightXboxController extends KnightFightController implements 
                 activeButtons.add(KnightFightMappings.Button.JOIN);
                 activeButtons.add(KnightFightMappings.Button.JUMP);
                 break;
+            case B:
+                activeButtons.add(KnightFightMappings.Button.THROW);
+                break;
         }
 
         if (activeButtons.size() > 0) {
@@ -82,4 +85,9 @@ public class KnightFightXboxController extends KnightFightController implements 
     @Override public boolean xSliderMoved(Controller controller, int sliderCode, boolean value) { return false; }
     @Override public boolean ySliderMoved(Controller controller, int sliderCode, boolean value) { return false; }
     @Override public boolean accelerometerMoved(Controller controller, int accelerometerCode, Vector3 value) { return false; }
+
+    @Override
+    public void destruct() {
+        this.controller.removeListener(this);
+    }
 }
