@@ -6,13 +6,30 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class World {
+    private List<WorldLayer> layers = new ArrayList<>();
+    private List<Actor> actors = new ArrayList<>();
+    private PlayersWorldLayer playersLayer;
 
-    List<Actor> actors = new ArrayList<>();
+    public World() {
+    }
+
+    public List<WorldLayer> getLayers() {
+        return layers;
+    }
+
+    public void addLayer(WorldLayer layer) {
+        this.layers.add(layer);
+    }
 
     public void update(float delta) {
     }
 
     public void render(SpriteBatch batch) {
 
+    }
+
+    public void addEmptyPlayersLayer() {
+        playersLayer = new PlayersWorldLayer();
+        layers.add(playersLayer);
     }
 }
