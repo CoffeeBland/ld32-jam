@@ -80,7 +80,7 @@ public class StateManager {
             float halfLength = (transitionLength / 2f);
             transitionColor.a = 1 - (Math.abs(remainingTransitionTime - halfLength) / halfLength);
             batch.setColor(transitionColor);
-            batch.draw(Textures.whitePixel, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+            batch.draw(Textures.WHITE_PIXEL, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
             batch.setColor(Color.WHITE);
         }
     }

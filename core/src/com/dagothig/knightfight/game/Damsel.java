@@ -15,7 +15,7 @@ public class Damsel extends Person {
 
     @Override
     public Color getDefaultColor() {
-        return Color.RED.cpy();
+        return new Color((float)Math.random(), (float)Math.random(), (float)Math.random(), 1);
     }
 
     public Damsel() {

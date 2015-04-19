@@ -12,7 +12,7 @@ import java.util.Map;
  * Created by dagothig on 11/2/14.
  */
 public class Textures {
-    public static final Texture whitePixel;
+    public static final Texture WHITE_PIXEL;
 
     private static final Map<String, SoftReference<Texture>> images = new HashMap<>();
     public static Texture get(String ref) {
@@ -56,7 +56,7 @@ public class Textures {
     static {
         Pixmap whitePixelPixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
         whitePixelPixmap.drawPixel(0, 0, 0xFFFFFFFF);
-        whitePixel = new Texture(whitePixelPixmap);
+        WHITE_PIXEL = new Texture(whitePixelPixmap);
     }
 
     private Textures(){}

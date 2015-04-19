@@ -14,6 +14,6 @@ public abstract class Person extends Actor {
 
     public Person() {
         name = getDefaultName();
-        color = getDefaultColor()
+        color = getDefaultColor();
     }
 }

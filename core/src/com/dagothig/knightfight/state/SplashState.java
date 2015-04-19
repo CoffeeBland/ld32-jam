@@ -9,7 +9,10 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.dagothig.knightfight.util.ColorUtil;
 import com.dagothig.knightfight.util.FontUtil;
 
+import static com.dagothig.knightfight.util.Dimensions.PADDING;
+
 public class SplashState extends AutoSwitchState {
+
     @Override protected float getDuration() { return 2000; }
     @Override protected Class<? extends State> getNextStateClass() { return PlayerState.class; }
     @Override protected Color getTransitionColor() { return new Color(0xFFFFFFFF); }
@@ -26,7 +29,7 @@ public class SplashState extends AutoSwitchState {
         bg = ColorUtil.whitePixel();
         logo = new Texture(Gdx.files.internal(LOGO_PATH));
 
-        font = FontUtil.normalFont();
+        font = FontUtil.pixel();
         font.setColor(Color.BLACK.cpy());
         text = new GlyphLayout(font, "Catiniata - Dagothig - Kiasaki");
     }
@@ -36,10 +39,10 @@ public class SplashState extends AutoSwitchState {
         float imgX = (Gdx.graphics.getWidth() / 2) - (logo.getWidth() / 2); // Half the logo
         float imgY = (Gdx.graphics.getHeight() / 2) - (logo.getHeight() / 2); // Half the logo
 
-        batch.setColor(new Color(0xFEFEFEFF));
-        batch.draw(bg, 12, 12, Gdx.graphics.getWidth()-24, Gdx.graphics.getHeight()-24);
+        batch.setColor(new Color(0x75858AFF));
+        batch.draw(bg, PADDING, PADDING, Gdx.graphics.getWidth()- PADDING * 2, Gdx.graphics.getHeight()- PADDING * 2);
         batch.setColor(Color.WHITE.cpy());
         batch.draw(logo, imgX, imgY);
-        font.draw(batch, text, (Gdx.graphics.getWidth()/2)-(text.width/2), 48);
+        font.draw(batch, text, (Gdx.graphics.getWidth()/2)-(text.width/2), PADDING * 4);
     }
 }
