@@ -9,12 +9,13 @@ import com.dagothig.knightfight.util.Pair;
  */
 public class SheetAnimator {
 
-    Pair<Integer, Integer>[] animations;
-    int animationId;
-    final ImageSheet imageSheet;
-    boolean loop;
-    int frameX = 0, frameY = 0;
-    float fps, frameLength, durationRemaining;
+    protected Pair<Integer, Integer>[] animations;
+    protected int animationId;
+    protected final ImageSheet imageSheet;
+    protected boolean loop;
+    protected int frameX = 0, frameY = 0;
+    protected float fps, frameLength, durationRemaining;
+    protected Listener listener;
 
     public SheetAnimator(ImageSheet.Definition sheetDef, float fps, boolean loop, Pair<Integer, Integer>... animations) {
         this(Textures.get(sheetDef), fps, loop, animations);
@@ -49,6 +50,9 @@ public class SheetAnimator {
         return animationId;
     }
 
+    public Listener getListener() { return listener; }
+    public void setListener(Listener listener) { this.listener = listener; }
+
     public void setFps(float fps) {
         if (fps <= 0) {
             this.fps = 0;
@@ -56,6 +60,9 @@ public class SheetAnimator {
             frameLength = 1000 / fps;
             this.fps = fps;
         }
+    }
+    public void resetDurationRemaining() {
+        durationRemaining = frameLength;
     }
 
     public void renderSheet(SpriteBatch batch, float x, float y, boolean flip, float scale) {
@@ -89,6 +96,7 @@ public class SheetAnimator {
                 if (frameY == animations[animationId].second) {
                     if (queuedAnimationId != -1) {
                         frameX = queuedFrameX;
+                        if (listener != null) listener.onAnimationFinished(animationId, queuedAnimationId);
                         frameY = animations[animationId = queuedAnimationId].first;
                     } else if (loop) {
                         frameY = animations[animationId].first;
@@ -98,5 +106,9 @@ public class SheetAnimator {
                 }
             }
         }
+    }
+
+    public interface Listener {
+        void onAnimationFinished(int previousId, int nextId);
     }
 }

@@ -6,6 +6,5 @@ package com.dagothig.knightfight.util;
 public class Dimensions {
     public static final int
             BASE_DISTANCE = 12,
-            PADDING = BASE_DISTANCE,
-            MIN_LADY_CELL_IMG_WIDTH = PADDING * 8;
+            PADDING = BASE_DISTANCE;
 }

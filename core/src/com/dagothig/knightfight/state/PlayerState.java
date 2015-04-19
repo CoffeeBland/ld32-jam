@@ -11,6 +11,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.dagothig.knightfight.game.Camera;
 import com.dagothig.knightfight.game.Player;
 import com.dagothig.knightfight.input.*;
+import com.dagothig.knightfight.res.Definitions;
 import com.dagothig.knightfight.res.Textures;
 import com.dagothig.knightfight.util.FontUtil;
 import com.dagothig.knightfight.util.Pair;
@@ -18,7 +19,6 @@ import com.dagothig.knightfight.util.Pair;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.dagothig.knightfight.util.Dimensions.MIN_LADY_CELL_IMG_WIDTH;
 import static com.dagothig.knightfight.util.Dimensions.PADDING;
 
 public class PlayerState extends State<Void> {
@@ -104,7 +104,7 @@ public class PlayerState extends State<Void> {
         float cellTop = ladiesFontBottom;
         if (players.size() > 0) {
             float heightPerCell = (ladiesFontBottom - infoTop) / players.size();
-            float ladyCellImgWidth = Math.max(Gdx.graphics.getWidth() * 0.2f, MIN_LADY_CELL_IMG_WIDTH);
+            float ladyCellImgWidth = Definitions.LADY_SHEET.frameWidth;
             for (int i = 0, n = players.size(); i < n; i++) {
                 Player player = players.get(i);
 

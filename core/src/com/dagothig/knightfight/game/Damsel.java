@@ -13,7 +13,7 @@ import com.dagothig.knightfight.res.SheetAnimator;
 import com.dagothig.knightfight.res.Textures;
 import com.dagothig.knightfight.util.Pair;
 
-public class Damsel extends Person {
+public class Damsel extends Person implements SheetAnimator.Listener {
 
     private static final int
             ANIMATION_WALK = 0,
@@ -21,13 +21,19 @@ public class Damsel extends Person {
             ANIMATION_HOLD = 2,
             ANIMATION_THROW = 3;
 
-    public Knight knight;
+    public enum Action {
+        WALKING,
+        PICKUP,
+        HOLD,
+        THROWING;
+    }
+    public Action action = Action.WALKING;
+
     public Color skinColor, robeHighlightColor, hairColor;
-
     public float xAxis, yAxis;
-    public boolean wantsToJump, wantsToThrow;
-    public float speed = 2f, jumpStrength = 20f;
 
+    public boolean wantsToJump, wantsToThrow;
+    public float speed = 2f, jumpStrength = 15f;
     public Damsel() {
         super(80, 160,
                 DamselName.getRandomName().name(), new Color(
@@ -89,6 +95,7 @@ public class Damsel extends Person {
         );
         batch.dispose();
         //fb.dispose();
+        mainTexture.setListener(this);
 
         mainShiftX = mainTexture.getImageSheet().getFrameWidth() / 2;
         mainShiftY = shadow.getHeight() / 2 + 32;
@@ -96,18 +103,29 @@ public class Damsel extends Person {
 
     @Override
     public void update(float delta, World world) {
-        if (wantsToThrow) {
-            if (knight == null) { // Pickup
-                mainTexture.playAnimation(ANIMATION_PICKUP, ANIMATION_HOLD);
-                mainTexture.setFps(8);
-                knight = new Knight();
-            } else if (knight != null) {
-                mainTexture.playAnimation(ANIMATION_THROW, ANIMATION_WALK);
-                mainTexture.setFps(8);
-                knight = null;
-            }
-            wantsToThrow = false;
+        switch (action) {
+            case WALKING:
+                if (wantsToThrow) {
+                    mainTexture.playAnimation(ANIMATION_PICKUP, ANIMATION_HOLD);
+                    mainTexture.setFps(8);
+                    mainTexture.resetDurationRemaining();
+                    action = Action.PICKUP;
+                }
+                break;
+            case PICKUP:
+                break;
+            case HOLD:
+                if (wantsToThrow) {
+                    mainTexture.playAnimation(ANIMATION_THROW, ANIMATION_WALK);
+                    mainTexture.setFps(8);
+                    mainTexture.resetDurationRemaining();
+                    action = Action.THROWING;
+                }
+                break;
+            case THROWING:
+                break;
         }
+        if (wantsToThrow) wantsToThrow = false;
         if (wantsToJump) {
             wantsToJump = false;
             if (pos.z < MIN_DISTANCE) velocity.z += jumpStrength;
@@ -122,13 +140,25 @@ public class Damsel extends Person {
 
         switch (mainTexture.getAnimationId()) {
             case ANIMATION_WALK:
-                mainTexture.setFps(Math.max(velocity.len() * 4, 3));
-                break;
             case ANIMATION_HOLD:
-                mainTexture.setFps(Math.max(velocity.len() * 4, 3) * 0.8f);
+                mainTexture.setFps(Math.max(velocity.len() * 3, 3));
                 break;
         }
 
         super.update(delta, world);
+    }
+
+    @Override
+    public void onAnimationFinished(int previousId, int nextId) {
+        switch (action) {
+            case THROWING:
+            break;
+            case WALKING:
+            break;
+            case HOLD:
+            break;
+            case PICKUP:
+            break;
+        }
     }
 }
