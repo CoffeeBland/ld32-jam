@@ -12,8 +12,7 @@ import com.dagothig.knightfight.util.FontUtil;
 import static com.dagothig.knightfight.util.Dimensions.PADDING;
 
 public class SplashState extends AutoSwitchState {
-
-    @Override protected float getDuration() { return 2000; }
+    @Override protected float getDuration() { return 1200; }
     @Override protected Class<? extends State> getNextStateClass() { return PlayerState.class; }
     @Override protected Color getTransitionColor() { return new Color(0xFFFFFFFF); }
     @Override protected float getTransitionDuration() { return TRANSITION_MEDIUM; }
@@ -25,7 +24,7 @@ public class SplashState extends AutoSwitchState {
     private GlyphLayout text;
 
     public SplashState() {
-        setBackgroundColor(Color.WHITE.cpy());
+        setBackgroundColor(Color.LIGHT_GRAY.cpy());
         bg = ColorUtil.whitePixel();
         logo = new Texture(Gdx.files.internal(LOGO_PATH));
 
@@ -36,8 +35,8 @@ public class SplashState extends AutoSwitchState {
 
     @Override
     public void render(SpriteBatch batch) {
-        float imgX = (Gdx.graphics.getWidth() / 2) - (logo.getWidth() / 2); // Half the logo
-        float imgY = (Gdx.graphics.getHeight() / 2) - (logo.getHeight() / 2); // Half the logo
+        float imgX = (Gdx.graphics.getWidth() / 2) - (logo.getWidth() / 2);
+        float imgY = (Gdx.graphics.getHeight() / 2) - (logo.getHeight() / 2);
 
         batch.setColor(new Color(0x75858AFF));
         batch.draw(bg, PADDING, PADDING, Gdx.graphics.getWidth()- PADDING * 2, Gdx.graphics.getHeight()- PADDING * 2);

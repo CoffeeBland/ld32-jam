@@ -25,7 +25,6 @@ import static com.dagothig.knightfight.util.Dimensions.PADDING;
  * Created by dagothig on 4/18/15.
  */
 public class PlayerState extends State<Void> {
-
     public List<Player> players = new ArrayList<>();
     public List<Pair<? extends Controller, PlayerControllerListener>> controllerListenerPairs = new ArrayList<>();
     public BitmapFont
