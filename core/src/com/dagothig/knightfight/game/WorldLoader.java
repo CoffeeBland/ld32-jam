@@ -6,7 +6,7 @@ import java.io.File;
 import java.io.IOException;
 
 public class WorldLoader {
-   private static ObjectMapper mapper;
+   protected static ObjectMapper mapper;
 
    public static World loadMapByName(String name) {
       if (mapper == null) mapper = new ObjectMapper();
@@ -23,23 +23,35 @@ public class WorldLoader {
       }
 
       for (WorldManifestLayer l : manifest.backgrounds) {
-         world.addLayer(WorldLayerFactory.createWorldLayer(l.filename, l.type));
+         world.addLayer(WorldLayerFactory.createWorldLayer(l));
       }
       world.addEmptyPlayersLayer();
       for (WorldManifestLayer l : manifest.foregrounds) {
-         world.addLayer(WorldLayerFactory.createWorldLayer(l.filename, l.type));
+         world.addLayer(WorldLayerFactory.createWorldLayer(l));
+      }
+
+      for (WorldManifestPolygon p : manifest.polygons) {
+         world.addPolygon(new WorldPolygon(p.points, p.deadly, p.exclusive));
       }
 
       return world;
    }
 
-   private static class WorldManifest {
+   public static class WorldManifest {
       public WorldManifestLayer[] backgrounds;
       public WorldManifestLayer[] foregrounds;
+
+      public WorldManifestPolygon[] polygons;
    }
 
-   private static class WorldManifestLayer {
+   public static class WorldManifestLayer {
       public String filename;
       public String type;
+   }
+
+   public static class WorldManifestPolygon {
+      public int[][] points;
+      public boolean deadly;
+      public boolean exclusive;
    }
 }

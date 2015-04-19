@@ -2,13 +2,14 @@ package com.dagothig.knightfight.game;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class World {
-    private List<WorldLayer> layers = new ArrayList<>();
-    private List<Actor> actors = new ArrayList<>();
-    private PlayersWorldLayer playersLayer;
+    protected List<WorldPolygon> polygons = new ArrayList<>();
+    protected List<WorldLayer> layers = new ArrayList<>();
+    protected PlayersWorldLayer playersLayer;
 
     public World() {
     }
@@ -19,6 +20,10 @@ public class World {
 
     public void addLayer(WorldLayer layer) {
         this.layers.add(layer);
+    }
+
+    public void addPolygon(WorldPolygon polygon) {
+        this.polygons.add(polygon);
     }
 
     public void update(float delta) {
