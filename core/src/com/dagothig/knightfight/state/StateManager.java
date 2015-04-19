@@ -84,7 +84,7 @@ public class StateManager {
     public void render(SpriteBatch batch) {
         if (currentState != null) {
             batch.setColor(currentState.getBackgroundColor());
-            batch.draw(Textures.whitePixel, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+            batch.draw(Textures.WHITE_PIXEL, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
             currentState.render(batch);
         }
         renderTransition(batch);

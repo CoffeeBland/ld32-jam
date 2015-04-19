@@ -32,6 +32,11 @@ public class WorldLoader {
 
       return world;
    }
+    public static World loadEmptyMap() {
+        World world = new World();
+        world.addEmptyPlayersLayer();
+        return world;
+    }
 
    private static class WorldManifest {
       public WorldManifestLayer[] backgrounds;

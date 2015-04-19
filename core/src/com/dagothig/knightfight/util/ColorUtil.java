@@ -1,5 +1,6 @@
 package com.dagothig.knightfight.util;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 
@@ -10,5 +11,12 @@ public class ColorUtil {
         bgPixmap.drawPixel(0, 0, 0xFFFFFFFF);
         return new Texture(bgPixmap);
     }
-
+    public static int toIntBitsProper (Color color) {
+        return
+                ((int)(255 * color.r) << 24)
+                | ((int)(255 * color.g) << 16)
+                | ((int)(255 * color.b) << 8)
+                | ((int)(255 * color.a) << 0)
+        ;
+    }
 }

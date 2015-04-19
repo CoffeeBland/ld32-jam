@@ -8,15 +8,22 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
  */
 public class SheetAnimator {
     public SheetAnimator(ImageSheet.Definition sheetDef, float fps, boolean loop) {
-        this.imageSheet = Textures.get(sheetDef);
+        this(Textures.get(sheetDef), fps, loop);
+    }
+    public SheetAnimator(ImageSheet imageSheet, float fps, boolean loop) {
+        this.imageSheet = imageSheet;
         this.loop = loop;
         setFps(fps);
     }
 
-    ImageSheet imageSheet;
+    final ImageSheet imageSheet;
     boolean loop;
     int frameX = 0, frameY = 0;
     float fps, frameLength, durationRemaining;
+
+    public ImageSheet getImageSheet() {
+        return imageSheet;
+    }
 
     public int getFrameX() {
         return frameX;

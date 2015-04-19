@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Vector3;
 import com.dagothig.knightfight.game.Player;
 import com.dagothig.knightfight.input.XboxMappings;
 import com.dagothig.knightfight.res.Textures;
@@ -50,7 +51,7 @@ public class PlayerState extends State<Void> {
         ladiesFont = FontUtil.brittany(28);
         ladiesFont.setColor(Color.WHITE.cpy());
 
-        ladiesText = new GlyphLayout(titleFont, "LADIES");
+        ladiesText = new GlyphLayout(titleFont, "Damsels");
         infoText = new GlyphLayout(infoFont, "Press 'a' to join, 'start' to fight");
     }
 
@@ -100,18 +101,21 @@ public class PlayerState extends State<Void> {
                 Player player = players.get(i);
 
                 // Cell background
-                float avg = (player.damsel.color.r + player.damsel.color.g + player.damsel.color.b) / 3f;
                 batch.setColor(
-                        avg * 0.1f + player.damsel.color.r * 0.1f,
-                        avg * 0.1f + player.damsel.color.g * 0.1f,
-                        avg * 0.1f + player.damsel.color.b * 0.1f,
-                        1
+                        player.damsel.color.r * 0.25f,
+                        player.damsel.color.g * 0.25f,
+                        player.damsel.color.b * 0.25f,
+                        0.5f
                 );
                 batch.draw(Textures.WHITE_PIXEL, 0, cellTop - heightPerCell, Gdx.graphics.getWidth(), heightPerCell);
-                batch.setColor(0xFFFFFFFF);
+                batch.setColor(Color.WHITE);
 
                 // Lady
-
+                Vector3 pos = VectorPool.V3();
+                pos.x = ladyCellImgWidth / 2;
+                pos.y = cellTop - heightPerCell / 2 - player.damsel.getHeight() / 2;
+                player.damsel.render(batch, pos);
+                VectorPool.reclaim(pos);
 
                 // Text
                 GlyphLayout glyphLayout = playerGlyphLayouts.get(i);

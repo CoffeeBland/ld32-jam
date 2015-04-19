@@ -6,11 +6,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class World {
-    private List<WorldLayer> layers = new ArrayList<>();
-    private List<Actor> actors = new ArrayList<>();
-    private PlayersWorldLayer playersLayer;
+    protected List<WorldLayer> layers = new ArrayList<>();
+    protected ActorsWorldLayer actorsLayer;
+
+    public float friction = 0.95f;
 
     public World() {
+    }
+
+    public void add(Actor actor) {
+        actorsLayer.actors.add(actor);
+    }
+    public void remove(Actor actor) {
+        actorsLayer.actors.remove(actor);
     }
 
     public List<WorldLayer> getLayers() {
@@ -22,14 +30,19 @@ public class World {
     }
 
     public void update(float delta) {
+        for (WorldLayer layer : layers) {
+            layer.update(delta, this);
+        }
     }
 
     public void render(SpriteBatch batch) {
-
+        for (WorldLayer layer : layers) {
+            layer.render(batch);
+        }
     }
 
     public void addEmptyPlayersLayer() {
-        playersLayer = new PlayersWorldLayer();
-        layers.add(playersLayer);
+        actorsLayer = new ActorsWorldLayer();
+        layers.add(actorsLayer);
     }
 }
