@@ -121,7 +121,7 @@ public class PlayerState extends State<Void> {
                 // Lady
                 Vector3 pos = VectorPool.V3();
                 pos.x = ladyCellImgWidth / 2;
-                pos.y = cellTop - heightPerCell / 2 - player.damsel.getVisualHeight() / 2;
+                pos.y = cellTop - heightPerCell / 2 - player.damsel.getVisualHeight() / 2 + player.damsel.mainShiftY;
                 player.damsel.render(batch, camera, pos);
                 VectorPool.claim(pos);
 
@@ -137,6 +137,11 @@ public class PlayerState extends State<Void> {
     @Override
     public void update(float delta) {
         for (Pair<? extends KnightFightController, PlayerControllerListener> pair : controllerListenerPairs) {
+            if (pair.second.player != null && pair.second.player.damsel.mainTexture != null) {
+                pair.second.player.damsel.mainTexture.update(delta);
+                pair.second.player.damsel.orientation -= 0.0016f * delta;
+            }
+
             if (pair.second.requestingPlayer) {
                 pair.second.requestingPlayer = false;
                 if (pair.second.player == null) {

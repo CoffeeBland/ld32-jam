@@ -2,24 +2,30 @@ package com.dagothig.knightfight.res;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.dagothig.knightfight.util.Pair;
 
 /**
  * Created by dagothig on 8/23/14.
  */
 public class SheetAnimator {
-    public SheetAnimator(ImageSheet.Definition sheetDef, float fps, boolean loop) {
-        this(Textures.get(sheetDef), fps, loop);
-    }
-    public SheetAnimator(ImageSheet imageSheet, float fps, boolean loop) {
-        this.imageSheet = imageSheet;
-        this.loop = loop;
-        setFps(fps);
-    }
 
+    Pair<Integer, Integer>[] animations;
+    int animationId;
     final ImageSheet imageSheet;
     boolean loop;
     int frameX = 0, frameY = 0;
     float fps, frameLength, durationRemaining;
+
+    public SheetAnimator(ImageSheet.Definition sheetDef, float fps, boolean loop, Pair<Integer, Integer>... animations) {
+        this(Textures.get(sheetDef), fps, loop, animations);
+    }
+    public SheetAnimator(ImageSheet imageSheet, float fps, boolean loop, Pair<Integer, Integer>... animations) {
+        this.imageSheet = imageSheet;
+        this.loop = loop;
+        this.animations = animations;
+        this.animationId = 0;
+        setFps(fps);
+    }
 
     public ImageSheet getImageSheet() {
         return imageSheet;
@@ -39,6 +45,10 @@ public class SheetAnimator {
         durationRemaining = frameLength;
     }
 
+    public int getAnimationId() {
+        return animationId;
+    }
+
     public void setFps(float fps) {
         if (fps <= 0) {
             this.fps = 0;
@@ -55,12 +65,18 @@ public class SheetAnimator {
         imageSheet.render(batch, x, y, frameX, frameY, scale, flip, tint);
     }
 
-    private int queuedFrameX = -1, queuedFrameY = -1;
-    public void playFrameY(int frameX, int frameY, int resolveX, int resolveY) {
+    private int queuedFrameX = -1, queuedAnimationId = -1;
+    public void playAnimation(int frameX, int animationId, int resolveX, int resolveId) {
         queuedFrameX = resolveX;
-        queuedFrameY = resolveY;
+        queuedAnimationId = resolveId;
         this.frameX = frameX;
-        this.frameY = frameY;
+        this.frameY = animations[this.animationId = animationId].first;
+        this.durationRemaining = frameLength;
+    }
+    public void playAnimation(int animationId, int resolveId) {
+        queuedFrameX = frameX;
+        queuedAnimationId = resolveId;
+        this.frameY = animations[this.animationId = animationId].first;
         this.durationRemaining = frameLength;
     }
 
@@ -70,12 +86,12 @@ public class SheetAnimator {
             while (durationRemaining < 0) {
                 durationRemaining += frameLength;
 
-                if (frameY == imageSheet.framesY - 1) {
-                    if (queuedFrameY != -1) {
+                if (frameY == animations[animationId].second) {
+                    if (queuedAnimationId != -1) {
                         frameX = queuedFrameX;
-                        frameY = 0;
+                        frameY = animations[animationId = queuedAnimationId].first;
                     } else if (loop) {
-                        frameY = 0;
+                        frameY = animations[animationId].first;
                     }
                 } else {
                     frameY++;

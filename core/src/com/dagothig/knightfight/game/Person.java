@@ -192,7 +192,7 @@ public abstract class Person extends Actor {
         double partial = orientation / Math.PI * 8;
         if (partial >= 11 && partial < 13) return 0;
         else if (partial >= 13 && partial < 15 || partial >= 9 && partial < 11) return 1;
-        else if (partial >= 15 && partial < 0 || partial >= 0 && partial < 1 || partial >= 7 && partial < 9) return 2;
+        else if (partial >= 15 && partial < 16 || partial >= 0 && partial < 1 || partial >= 7 && partial < 9) return 2;
         else if (partial >= 1 && partial < 3 || partial >= 5 && partial < 7) return 3;
         else if (partial >= 3 || partial < 5) return 4;
         else {

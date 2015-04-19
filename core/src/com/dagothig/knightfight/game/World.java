@@ -13,7 +13,7 @@ public class World {
     protected ActorsWorldLayer actorsLayer;
 
     public float airFriction = 0.98f;
-    public float groundFriction = 0.9f;
+    public float groundFriction = 0.8f;
     public float gravity = 1.75f;
 
     public World() {

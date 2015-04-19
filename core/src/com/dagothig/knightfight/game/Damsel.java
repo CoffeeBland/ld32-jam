@@ -11,13 +11,22 @@ import com.dagothig.knightfight.res.Definitions;
 import com.dagothig.knightfight.res.ImageSheet;
 import com.dagothig.knightfight.res.SheetAnimator;
 import com.dagothig.knightfight.res.Textures;
+import com.dagothig.knightfight.util.Pair;
 
 public class Damsel extends Person {
+
+    private static final int
+            ANIMATION_WALK = 0,
+            ANIMATION_PICKUP = 1,
+            ANIMATION_HOLD = 2,
+            ANIMATION_THROW = 3;
+
+    public Knight knight;
     public Color skinColor, robeHighlightColor, hairColor;
 
     public float xAxis, yAxis;
-    public boolean wantsToJump;
-    public float speed = 1f;
+    public boolean wantsToJump, wantsToThrow;
+    public float speed = 2f, jumpStrength = 20f;
 
     public Damsel() {
         super(80, 160,
@@ -27,9 +36,9 @@ public class Damsel extends Person {
                 (float)Math.random() * 0.5f + 0.5f,
                 1
         ));
-        skinColor = new Color(0.9f, 0.95f, 0.9f, 1);
+        skinColor = new Color(0.9f * (float)Math.random(), 0.9f * (float)Math.random(), 0.8f * (float)Math.random(), 1);
         robeHighlightColor = color.cpy().mul(1.2f);
-        hairColor = new Color(0.6f, 0.5f, 0.4f, 1);
+        hairColor = new Color((float)Math.random(), (float)Math.random(), (float)Math.random(), 1);
 
         shadow = Textures.get("lady_shadow.png");
 
@@ -65,12 +74,19 @@ public class Damsel extends Person {
         fb.end();
 
         // Apparently, fb.dispose() makes its texture dispose as well. So we aren't doing it
-        mainTexture = new SheetAnimator(new ImageSheet(new ImageSheet.TextureDef(
-                "01_peau.png",
-                fb.getColorBufferTexture(),
-                Definitions.LADY_SHEET.frameWidth,
-                Definitions.LADY_SHEET.frameHeight
-        )), 8, true);
+        mainTexture = new SheetAnimator(
+                new ImageSheet(new ImageSheet.TextureDef(
+                        "01_peau.png",
+                        fb.getColorBufferTexture(),
+                        Definitions.LADY_SHEET.frameWidth,
+                        Definitions.LADY_SHEET.frameHeight
+                )),
+                8, true,
+                new Pair<>(0, 2),
+                new Pair<>(3, 5),
+                new Pair<>(6, 8),
+                new Pair<>(4, 4)
+        );
         batch.dispose();
         //fb.dispose();
 
@@ -80,9 +96,21 @@ public class Damsel extends Person {
 
     @Override
     public void update(float delta, World world) {
+        if (wantsToThrow) {
+            if (knight == null) { // Pickup
+                mainTexture.playAnimation(ANIMATION_PICKUP, ANIMATION_HOLD);
+                mainTexture.setFps(8);
+                knight = new Knight();
+            } else if (knight != null) {
+                mainTexture.playAnimation(ANIMATION_THROW, ANIMATION_WALK);
+                mainTexture.setFps(8);
+                knight = null;
+            }
+            wantsToThrow = false;
+        }
         if (wantsToJump) {
             wantsToJump = false;
-            if (pos.z < MIN_DISTANCE) velocity.z += 10;
+            if (pos.z < MIN_DISTANCE) velocity.z += jumpStrength;
         }
 
         if (xAxis != 0 || yAxis != 0) orientation = (float)Math.atan2(yAxis, xAxis);
@@ -90,6 +118,15 @@ public class Damsel extends Person {
             velocity.add(speed * xAxis, speed * yAxis, 0);
         } else {
             velocity.add(speed * xAxis * 0.1f, speed * yAxis * 0.1f, 0);
+        }
+
+        switch (mainTexture.getAnimationId()) {
+            case ANIMATION_WALK:
+                mainTexture.setFps(Math.max(velocity.len() * 4, 3));
+                break;
+            case ANIMATION_HOLD:
+                mainTexture.setFps(Math.max(velocity.len() * 4, 3) * 0.8f);
+                break;
         }
 
         super.update(delta, world);

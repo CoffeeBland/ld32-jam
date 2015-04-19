@@ -20,6 +20,9 @@ public class Player implements KnightFightControllerListener {
     @Override
     public boolean buttonDown(KnightFightController controller, KnightFightMappings.Button button) {
         switch (button) {
+            case THROW:
+                damsel.wantsToThrow = true;
+                break;
             case JUMP:
                 damsel.wantsToJump = true;
                 break;
