@@ -15,17 +15,27 @@ public class Camera {
     public void update(List<Player> players) {
         int offsetMaxX = WORLD_WIDTH - Gdx.graphics.getWidth();
         int offsetMaxY = WORLD_HEIGHT - Gdx.graphics.getHeight();
-        innerCamera.setToOrtho(false, WORLD_WIDTH, WORLD_HEIGHT);
 
         int offsetMinX = 0;
         int offsetMinY = 0;
 
+        // Used to center camera
         int sumOfPlayerXs = 0;
         int sumOfPlayerYs = 0;
+
+        // Used to scale/zoom camera
+        int playersMinX = 0;
+        int playersMaxX = 0;
+        int playersMinY = 0;
+        int playersMaxY = 0;
 
         for (Player p : players) {
             sumOfPlayerXs += p.damsel.pos.x;
             sumOfPlayerYs += p.damsel.pos.y;
+            if (p.damsel.pos.x < playersMinX) playersMinX = Math.round(p.damsel.pos.x);
+            if (p.damsel.pos.x > playersMaxX) playersMaxX = Math.round(p.damsel.pos.x);
+            if (p.damsel.pos.y < playersMinY) playersMinY = Math.round(p.damsel.pos.y);
+            if (p.damsel.pos.y > playersMaxY) playersMaxY = Math.round(p.damsel.pos.y);
         }
 
         int camX = (sumOfPlayerXs/players.size()) - (Gdx.graphics.getWidth()/2);
@@ -35,6 +45,8 @@ public class Camera {
         if (camX < offsetMinX) camX = offsetMinX;
         if (camY > offsetMaxY) camY = offsetMaxY;
         if (camY < offsetMinY) camY = offsetMinY;
+
+        innerCamera.setToOrtho(false, playersMaxX - playersMinX + 800, playersMaxY - playersMinY + 800);
 
         innerCamera.translate(
             camX-innerCamera.position.x * 0.2f,

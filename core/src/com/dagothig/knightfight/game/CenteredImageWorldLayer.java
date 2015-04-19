@@ -12,10 +12,10 @@ public class CenteredImageWorldLayer implements WorldLayer {
     }
 
     @Override
-    public void render(SpriteBatch batch, Camera camera) {
+    public void render(SpriteBatch batch) {
         float vpWidth = Gdx.graphics.getWidth();
         float vpHeight = Gdx.graphics.getHeight();
-        batch.draw(img, (vpWidth/2), (vpHeight/2));
+        batch.draw(img, (vpWidth/2)-(img.getWidth()/2), (vpHeight/2)-(img.getHeight()/2));
     }
 
     @Override
