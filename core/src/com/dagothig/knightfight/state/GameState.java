@@ -24,7 +24,7 @@ public class GameState extends State<List<Player>> {
         super.onTransitionInStart(firstTransition, players);
 
         this.players = players;
-        world = WorldLoader.loadEmptyMap();
+        world = WorldLoader.loadMapByName("map1");
         for (Player player : players) {
             player.damsel.pos.add(400 * (float)Math.random(), 400 * (float)Math.random(), 0);
             world.add(player.damsel);
