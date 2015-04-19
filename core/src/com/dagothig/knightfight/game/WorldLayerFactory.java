@@ -2,12 +2,12 @@ package com.dagothig.knightfight.game;
 
 public class WorldLayerFactory {
 
-    public static WorldLayer createWorldLayer(String filename, String type) {
+    public static WorldLayer createWorldLayer(WorldLoader.WorldManifestLayer manifest) {
         WorldLayer layer = null;
 
-        switch (type) {
+        switch (manifest.type) {
             case "centered":
-                layer = new CenteredImageWorldLayer(filename);
+                layer = new CenteredImageWorldLayer(manifest.filename);
                 break;
         }
 

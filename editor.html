@@ -1,0 +1,99 @@
+<!doctype>
+<html>
+<head>
+  <title>World Manifest Editor</title>
+
+  <style>
+    body, html {
+      margin: 0; padding: 0;
+      font-family: sans-serif;
+      font-size: 16px;
+    }
+    #manifestContents {
+      position: fixed;
+      top: 0; bottom: 0;
+      left: 0; right: 50%;
+    }
+    .mapc {
+      display: block;
+      position: fixed;
+      top: 0; bottom: 0;
+      left: 50%; right: 0;
+      background: #efefef;
+      border-left: 3px solid #333;
+    }
+    body.error .mapc {
+      border-color: #ff0000;
+    }
+    #map {
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+<body>
+  <textarea id="manifestContents" autofocus></textarea>
+  <div class="mapc"><canvas id="map"></canvas></div>
+
+  <link rel="stylesheet" href="editor-assets/codemirror.css">
+  <script src="editor-assets/codemirror.js"></script>
+  <script>
+    var editor = CodeMirror.fromTextArea(manifestContents, {
+      lineNumbers: true
+    });
+    editor.on("change", function() {
+      var contents;
+      document.body.className = "";
+      try {
+        window.localStorage['man'] = editor.getValue();
+        contents = JSON.parse(editor.getValue());
+      } catch(e) {
+        document.body.classList.add('error');
+        return;
+      }
+      if (contents.filename) {
+        var img = new Image();
+
+        img.onload = function() {
+          var scale = 0.3333333;
+          var ctx = map.getContext("2d");
+          ctx.save();
+          ctx.scale(scale, scale);
+
+          scale = 1/scale;
+
+          var tx = (map.width*scale/2);
+          var ty = (map.height*scale/2)
+          var sx = (img.naturalWidth/2);
+          var sy = (img.naturalHeight/2);
+
+          ctx.drawImage(img, tx - sx, ty - sy);
+
+          if (contents.polygons) {
+            for (var i = 0; i < contents.polygons.length; i++) {
+              if (contents.polygons[i].points) {
+                for (var p = 0; p < contents.polygons[i].points.length; p++) {
+                  var point = contents.polygons[i].points[p];
+                  ctx.strokeRect(tx - sx + point[0] - 10, ty - sy + point[1] - 10, 20, 20);
+                }
+              }
+            }
+          }
+
+          ctx.restore();
+        };
+
+        window.img = img;
+
+        img.src = 'core/assets/' + contents.filename;
+      }
+    });
+
+    map.height = window.innerHeight;
+    map.width = window.innerWidth/2;
+
+    // load save
+    if (localStorage['man']) editor.setValue(localStorage['man']);
+  </script>
+</body>
+</html>

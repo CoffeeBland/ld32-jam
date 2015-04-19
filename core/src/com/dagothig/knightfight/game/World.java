@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class World {
+    protected List<WorldPolygon> polygons = new ArrayList<>();
     protected List<WorldLayer> layers = new ArrayList<>();
     protected ActorsWorldLayer actorsLayer;
 
@@ -27,6 +28,10 @@ public class World {
 
     public void addLayer(WorldLayer layer) {
         this.layers.add(layer);
+    }
+
+    public void addPolygon(WorldPolygon polygon) {
+        this.polygons.add(polygon);
     }
 
     public void update(float delta) {
