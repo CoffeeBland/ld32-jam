@@ -21,6 +21,7 @@
       left: 50%; right: 0;
       background: #efefef;
       border-left: 3px solid #333;
+      z-index: 9000;
     }
     body.error .mapc {
       border-color: #ff0000;
@@ -28,6 +29,9 @@
     #map {
       width: 100%;
       height: 100%;
+    }
+    .CodeMirror {
+      height: 100%!important;
     }
   </style>
 </head>
@@ -38,6 +42,7 @@
   <link rel="stylesheet" href="editor-assets/codemirror.css">
   <script src="editor-assets/codemirror.js"></script>
   <script>
+    var SCALE = 0.3333333;
     var editor = CodeMirror.fromTextArea(manifestContents, {
       lineNumbers: true
     });
@@ -51,31 +56,41 @@
         document.body.classList.add('error');
         return;
       }
-      if (contents.filename) {
+      if (contents.backgrounds && contents.backgrounds.length > 0 && contents.backgrounds[0].filename) {
         var img = new Image();
 
         img.onload = function() {
-          var scale = 0.3333333;
           var ctx = map.getContext("2d");
+          window.ctx = ctx;
           ctx.save();
-          ctx.scale(scale, scale);
+          ctx.scale(SCALE, SCALE);
 
-          scale = 1/scale;
 
-          var tx = (map.width*scale/2);
-          var ty = (map.height*scale/2)
+          var tx = (map.width*(1/SCALE)/2);
+          var ty = (map.height*(1/SCALE)/2)
           var sx = (img.naturalWidth/2);
           var sy = (img.naturalHeight/2);
+          window.tlx = tx - sx;
+          window.tly = ty - sy;
 
           ctx.drawImage(img, tx - sx, ty - sy);
+          ctx.fillStyle = 'rgba(0, 0, 200, 0.2)';
 
           if (contents.polygons) {
             for (var i = 0; i < contents.polygons.length; i++) {
               if (contents.polygons[i].points) {
+
+                ctx.beginPath();
                 for (var p = 0; p < contents.polygons[i].points.length; p++) {
                   var point = contents.polygons[i].points[p];
-                  ctx.strokeRect(tx - sx + point[0] - 10, ty - sy + point[1] - 10, 20, 20);
+                  var x = tx - sx + point[0];
+                  var y = ty - sy + point[1];
+                  ctx.strokeRect(x - 10, y - 10, 20, 20);
+                  if (p === 0) ctx.moveTo(x, y);
+                  if (p !== 0) ctx.lineTo(x, y);
                 }
+                ctx.fill();
+
               }
             }
           }
@@ -85,15 +100,140 @@
 
         window.img = img;
 
-        img.src = 'core/assets/' + contents.filename;
+        img.src = 'core/assets/' + contents.backgrounds[0].filename;
       }
     });
 
+    map.onmousemove = function(e) {
+      if (!window.ctx || !window.tlx) return;
+
+      var pointedX = ((e.clientX-map.width)*(1/SCALE)) - window.tlx;
+      var pointedY = (e.clientY*(1/SCALE)) - window.tly;
+
+      window.ctx.font = "18px serif";
+      window.ctx.clearRect(0, 0, 160, 30);
+      window.ctx.fillText("(x, y) (" + Math.round(pointedX) + ", " + Math.round(pointedY) + ")", 20, 20);
+    };
+    map.onmouseup = function(e) {
+      // add a new polygon
+      if (e.button !== 0) {
+        try {
+          var contents = JSON.parse(editor.getValue());
+          if (contents && contents.polygons) {
+            contents.polygons.push({
+              deadly: true,
+              exclusive: true,
+              points: []
+            });
+            editor.setValue(stringify(contents));
+          }
+        } catch (e) {}
+      }
+
+      if (!window.ctx || !window.tlx) return;
+
+      // add a point to last polygon
+      var pointedX = ((e.clientX-map.width)*(1/SCALE)) - window.tlx;
+      var pointedY = (e.clientY*(1/SCALE)) - window.tly;
+      try {
+        var contents = JSON.parse(editor.getValue());
+        if (contents && contents.polygons && contents.polygons[contents.polygons.length-1].points) {
+          contents.polygons[contents.polygons.length-1].points.push([Math.round(pointedX), Math.round(pointedY)]);
+          editor.setValue(stringify(contents));
+        }
+      } catch (e) {}
+    };
+
     map.height = window.innerHeight;
     map.width = window.innerWidth/2;
+    map.oncontextmenu = function() { return false; }
 
     // load save
     if (localStorage['man']) editor.setValue(localStorage['man']);
+
+    function stringify(obj, options) {
+      options = options || {}
+      var indent = JSON.stringify([1], null, get(options, "indent", 2)).slice(2, -3)
+      var maxLength = (indent === "" ? Infinity : get(options, "maxLength", 80))
+
+      return (function _stringify(obj, currentIndent, reserved) {
+        if (obj && typeof obj.toJSON === "function") {
+          obj = obj.toJSON()
+        }
+
+        var string = JSON.stringify(obj)
+
+        if (string === undefined) {
+          return string
+        }
+
+        var length = maxLength - currentIndent.length - reserved
+
+        if (string.length <= length) {
+          var prettified = prettify(string)
+          if (prettified.length <= length) {
+            return prettified
+          }
+        }
+
+        if (typeof obj === "object" && obj !== null) {
+          var nextIndent = currentIndent + indent
+          var items = []
+          var delimiters
+          var comma = function(array, index) {
+            return (index === array.length - 1 ? 0 : 1)
+          }
+
+          if (Array.isArray(obj)) {
+            for (var index = 0; index < obj.length; index++) {
+              items.push(
+                _stringify(obj[index], nextIndent, comma(obj, index)) || "null"
+              )
+            }
+            delimiters = "[]"
+          } else {
+            Object.keys(obj).forEach(function(key, index, array) {
+              var keyPart = JSON.stringify(key) + ": "
+              var value = _stringify(obj[key], nextIndent,
+                                    keyPart.length + comma(array, index))
+              if (value !== undefined) {
+                items.push(keyPart + value)
+              }
+            })
+            delimiters = "{}"
+          }
+
+          if (items.length > 0) {
+            return [
+              delimiters[0],
+              indent + items.join(",\n" + nextIndent),
+              delimiters[1]
+            ].join("\n" + currentIndent)
+          }
+        }
+
+        return string
+      }(obj, "", 0))
+    }
+
+    // Note: This regex matches even invalid JSON strings, but since we’re
+    // working on the output of `JSON.stringify` we know that only valid strings
+    // are present (unless the user supplied a weird `options.indent` but in
+    // that case we don’t care since the output would be invalid anyway).
+    var stringOrChar = /("(?:[^"]|\\.)*")|[:,]/g
+
+    function prettify(string) {
+      return string.replace(stringOrChar, function(match, string) {
+        if (string) {
+          return match
+        }
+        return match + " "
+      })
+    }
+
+    function get(options, name, defaultValue) {
+      return (name in options ? options[name] : defaultValue)
+    }
   </script>
 </body>
 </html>
