@@ -10,7 +10,7 @@ public class ActorsWorldLayer implements WorldLayer {
     public Comparator<Actor> ySorter = new Comparator<Actor>() {
         @Override
         public int compare(Actor lhs, Actor rhs) {
-            return Float.compare(lhs.pos.y, rhs.pos.y);
+            return -Float.compare(lhs.pos.y, rhs.pos.y);
         }
     };
 

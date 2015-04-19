@@ -113,9 +113,9 @@ public class PlayerState extends State<Void> {
                 // Lady
                 Vector3 pos = VectorPool.V3();
                 pos.x = ladyCellImgWidth / 2;
-                pos.y = cellTop - heightPerCell / 2 - player.damsel.getHeight() / 2;
+                pos.y = cellTop - heightPerCell / 2 - player.damsel.getVisualHeight() / 2;
                 player.damsel.render(batch, pos);
-                VectorPool.reclaim(pos);
+                VectorPool.claim(pos);
 
                 // Text
                 GlyphLayout glyphLayout = playerGlyphLayouts.get(i);

@@ -13,10 +13,17 @@ public class Damsel extends Person {
     public Color skinColor, robeHighlightColor, hairColor;
 
     public float xAxis, yAxis;
-    public float speed = 0.5f;
+    public boolean wantsToJump;
+    public float speed = 1f;
 
     public Damsel() {
-        super(DamselName.getRandomName().name(), new Color((float)Math.random(), (float)Math.random(), (float)Math.random(), 1));
+        super(12, 18,
+                DamselName.getRandomName().name(), new Color(
+                (float)Math.random() * 0.5f + 0.5f,
+                (float)Math.random() * 0.5f + 0.5f,
+                (float)Math.random() * 0.5f + 0.5f,
+                1
+        ));
         skinColor = Color.WHITE.cpy();
         robeHighlightColor = Color.WHITE.cpy();
         hairColor = Color.WHITE.cpy();
@@ -35,8 +42,17 @@ public class Damsel extends Person {
 
     @Override
     public void update(float delta, World world) {
+        if (wantsToJump) {
+            wantsToJump = false;
+            if (pos.z < MIN_DISTANCE) velocity.z += 10;
+        }
+
         orientation = (float)Math.atan2(yAxis, xAxis);
-        velocity.add(speed * xAxis, speed * yAxis, 0);
+        if (pos.z < MIN_DISTANCE) {
+            velocity.add(speed * xAxis, speed * yAxis, 0);
+        } else {
+            velocity.add(speed * xAxis * 0.1f, speed * yAxis * 0.1f, 0);
+        }
 
         super.update(delta, world);
     }

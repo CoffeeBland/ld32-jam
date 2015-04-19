@@ -39,7 +39,7 @@ public class Textures {
 
     public static Texture get(String ref, Color color) {
         Pixmap source = new Pixmap(new FileHandle(ref));
-        Pixmap target = new Pixmap(source.getWidth(), source.getHeight(), source.getFormat());
+        Pixmap target = new Pixmap(source.getWidth(), source.getHeight(), Pixmap.Format.RGBA8888);
         Color tmpCol = new Color();
         for (int x = 0, nx = source.getWidth(); x < nx; x++) {
             for (int y = 0, ny = source.getHeight(); y < ny; y++) {

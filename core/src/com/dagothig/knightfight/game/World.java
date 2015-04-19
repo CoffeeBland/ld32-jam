@@ -10,7 +10,9 @@ public class World {
     protected List<WorldLayer> layers = new ArrayList<>();
     protected ActorsWorldLayer actorsLayer;
 
-    public float friction = 0.95f;
+    public float airFriction = 0.98f;
+    public float groundFriction = 0.9f;
+    public float gravity = 0.75f;
 
     public World() {
     }

@@ -7,7 +7,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.dagothig.knightfight.input.XboxMappings;
 
 public class Player implements ControllerListener {
-    private static final float MIN_AXIS = 0.1f;
+    private static final float MIN_AXIS = 0.25f;
     public Controller controller;
     public Damsel damsel;
 
@@ -28,6 +28,11 @@ public class Player implements ControllerListener {
 
     @Override
     public boolean buttonDown(Controller controller, int buttonCode) {
+        switch (XboxMappings.Button.getButton(buttonCode)) {
+            case A:
+                damsel.wantsToJump = true;
+                break;
+        }
         return false;
     }
 

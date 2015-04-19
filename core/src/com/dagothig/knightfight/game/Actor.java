@@ -9,8 +9,8 @@ import com.badlogic.gdx.math.Vector3;
 public abstract class Actor {
     public final Vector3 pos = new Vector3();
 
-    public abstract int getWidth();
-    public abstract int getHeight();
+    public abstract int getVisualWidth();
+    public abstract int getVisualHeight();
 
     public abstract void update(float delta, World world);
     public void render(SpriteBatch batch) {

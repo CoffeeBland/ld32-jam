@@ -35,6 +35,8 @@ public class StateManager {
 
         if (transitionColor == null) {
             transitionColor = Color.BLACK.cpy();
+        } else {
+            transitionColor = transitionColor.cpy();
         }
 
         // Get state
