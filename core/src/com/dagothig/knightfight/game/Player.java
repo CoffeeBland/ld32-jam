@@ -1,17 +1,15 @@
 package com.dagothig.knightfight.game;
 
-import com.badlogic.gdx.controllers.Controller;
-import com.badlogic.gdx.controllers.ControllerListener;
-import com.badlogic.gdx.controllers.PovDirection;
-import com.badlogic.gdx.math.Vector3;
-import com.dagothig.knightfight.input.XboxMappings;
+import com.dagothig.knightfight.input.KnightFightController;
+import com.dagothig.knightfight.input.KnightFightControllerListener;
+import com.dagothig.knightfight.input.KnightFightMappings;
 
-public class Player implements ControllerListener {
+public class Player implements KnightFightControllerListener {
     private static final float MIN_AXIS = 0.25f;
-    public Controller controller;
+    public KnightFightController controller;
     public Damsel damsel;
 
-    public Player(Controller controller) {
+    public Player(KnightFightController controller) {
         (this.controller = controller).addListener(this);
         damsel = new Damsel();
     }
@@ -20,19 +18,9 @@ public class Player implements ControllerListener {
     }
 
     @Override
-    public void connected(Controller controller) {
-        System.out.println("Player connected");
-    }
-
-    @Override
-    public void disconnected(Controller controller) {
-        System.out.println("Player disconnected");
-    }
-
-    @Override
-    public boolean buttonDown(Controller controller, int buttonCode) {
-        switch (XboxMappings.Button.getButton(buttonCode)) {
-            case A:
+    public boolean buttonDown(KnightFightController controller, KnightFightMappings.Button button) {
+        switch (button) {
+            case JUMP:
                 damsel.wantsToJump = true;
                 break;
         }
@@ -40,13 +28,13 @@ public class Player implements ControllerListener {
     }
 
     @Override
-    public boolean buttonUp(Controller controller, int buttonCode) {
+    public boolean buttonUp(KnightFightController controller, KnightFightMappings.Button button) {
         return false;
     }
 
     @Override
-    public boolean axisMoved(Controller controller, int axisCode, float value) {
-        switch (XboxMappings.Axis.getAxis(axisCode)) {
+    public boolean axisMoved(KnightFightController controller, KnightFightMappings.Axis axis, float value) {
+        switch (axis) {
             case LEFT_HORIZONTAL:
                 damsel.xAxis = Math.abs(value) < MIN_AXIS ? 0 : value;
                 break;
@@ -60,9 +48,4 @@ public class Player implements ControllerListener {
         }
         return false;
     }
-
-    @Override public boolean povMoved(Controller controller, int povCode, PovDirection value) { return false; }
-    @Override public boolean xSliderMoved(Controller controller, int sliderCode, boolean value) { return false; }
-    @Override public boolean ySliderMoved(Controller controller, int sliderCode, boolean value) { return false; }
-    @Override public boolean accelerometerMoved(Controller controller, int accelerometerCode, Vector3 value) { return false; }
 }

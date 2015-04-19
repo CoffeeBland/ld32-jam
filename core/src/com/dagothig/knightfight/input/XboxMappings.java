@@ -1,8 +1,5 @@
 package com.dagothig.knightfight.input;
 
-/**
- * Created by dagothig on 4/18/15.
- */
 public class XboxMappings {
     public static enum Button {
         A(0),

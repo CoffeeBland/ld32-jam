@@ -2,8 +2,6 @@ package com.dagothig.knightfight.state;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.controllers.Controller;
-import com.badlogic.gdx.controllers.ControllerAdapter;
-import com.badlogic.gdx.controllers.ControllerListener;
 import com.badlogic.gdx.controllers.Controllers;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -11,7 +9,7 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector3;
 import com.dagothig.knightfight.game.Player;
-import com.dagothig.knightfight.input.XboxMappings;
+import com.dagothig.knightfight.input.*;
 import com.dagothig.knightfight.res.Textures;
 import com.dagothig.knightfight.util.FontUtil;
 import com.dagothig.knightfight.util.Pair;
@@ -22,12 +20,10 @@ import java.util.List;
 import static com.dagothig.knightfight.util.Dimensions.MIN_LADY_CELL_IMG_WIDTH;
 import static com.dagothig.knightfight.util.Dimensions.PADDING;
 
-/**
- * Created by dagothig on 4/18/15.
- */
 public class PlayerState extends State<Void> {
     public List<Player> players = new ArrayList<>();
-    public List<Pair<? extends Controller, PlayerControllerListener>> controllerListenerPairs = new ArrayList<>();
+    public List<KnightFightKbdController> keyboardControllers = new ArrayList<>();
+    public List<Pair<? extends KnightFightController, PlayerControllerListener>> controllerListenerPairs = new ArrayList<>();
     public BitmapFont
             titleFont,
             infoFont,
@@ -52,18 +48,28 @@ public class PlayerState extends State<Void> {
         ladiesFont.setColor(Color.WHITE.cpy());
 
         ladiesText = new GlyphLayout(titleFont, "Damsels");
-        infoText = new GlyphLayout(infoFont, "Press 'a' to join, 'start' to fight");
+        infoText = new GlyphLayout(infoFont, "Press 'a' to join, 'start' to fight ('space' and 'enter' on a keyboard)");
     }
 
-    public boolean readyForPlayer() { return players.size() > 1; }
+    public boolean readyForPlayer() { return players.size() >= 1; }
     @Override public boolean shouldBeReused() { return false; }
 
     @Override
     public void onTransitionInStart(boolean firstTransition, Void aVoid) {
         super.onTransitionInStart(firstTransition, aVoid);
 
+        // Add left keyboard controller
+        KnightFightKbdController keyboardController = new KnightFightKbdController();
+        Pair<? extends KnightFightController, PlayerControllerListener> kbdpair =
+            new Pair<>(keyboardController, new PlayerControllerListener());
+        kbdpair.first.addListener(kbdpair.second);
+        controllerListenerPairs.add(kbdpair);
+        keyboardControllers.add(keyboardController);
+
+        // Add all plugged in xbox controller
         for (Controller controller: Controllers.getControllers()) {
-            Pair<? extends Controller, PlayerControllerListener> pair = new Pair<>(controller, new PlayerControllerListener());
+            Pair<? extends KnightFightController, PlayerControllerListener> pair =
+                new Pair<>(new KnightFightXboxController(controller), new PlayerControllerListener());
             controllerListenerPairs.add(pair);
             pair.first.addListener(pair.second);
         }
@@ -73,8 +79,9 @@ public class PlayerState extends State<Void> {
     public void onTransitionOutFinish() {
         super.onTransitionOutFinish();
 
-        for (Pair<? extends Controller, ? extends ControllerListener> pair: controllerListenerPairs) {
+        for (Pair<? extends KnightFightController, ? extends KnightFightControllerListener> pair: controllerListenerPairs) {
             pair.first.removeListener(pair.second);
+            pair.first.destruct();
         }
     }
 
@@ -128,7 +135,7 @@ public class PlayerState extends State<Void> {
     }
     @Override
     public void update(float delta) {
-        for (Pair<? extends Controller, PlayerControllerListener> pair : controllerListenerPairs) {
+        for (Pair<? extends KnightFightController, PlayerControllerListener> pair : controllerListenerPairs) {
             if (pair.second.requestingPlayer) {
                 pair.second.requestingPlayer = false;
                 if (pair.second.player == null) {
@@ -151,24 +158,52 @@ public class PlayerState extends State<Void> {
         }
     }
 
-    public class PlayerControllerListener extends ControllerAdapter {
+    public class PlayerControllerListener implements KnightFightControllerListener {
         public Player player;
         public boolean dead = false, requestingPlayer = false;
         @Override
-        public boolean buttonDown(Controller controller, int buttonIndex) {
+        public boolean buttonDown(KnightFightController controller, KnightFightMappings.Button button) {
             if (dead || requestingPlayer) return false;
-            switch (XboxMappings.Button.getButton(buttonIndex)) {
+
+            switch (button) {
                 case START:
                     // Require at least two player before being available
                     if (!readyForPlayer()) return false;
                     dead = true;
-                    switchToState(GameState.class, Color.WHITE, TRANSITION_MEDIUM, players);
+                    switchToState(GameState.class, Color.WHITE, TRANSITION_MEDIUM,
+                        new Pair<>(players, keyboardControllers));
                     break;
-                case A:
+                case JOIN:
                     requestingPlayer = true;
                     break;
             }
             return false;
         }
+
+        @Override
+        public boolean buttonUp(KnightFightController controller, KnightFightMappings.Button button) {
+            return false;
+        }
+
+        @Override
+        public boolean axisMoved(KnightFightController controller, KnightFightMappings.Axis axis, float value) {
+            return false;
+        }
+    }
+
+    @Override
+    public boolean keyUp(int keycode) {
+        for (KnightFightKbdController kfc : keyboardControllers) {
+            kfc.keyUp(keycode);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean keyDown(int keycode) {
+        for (KnightFightKbdController kfc : keyboardControllers) {
+            kfc.keyDown(keycode);
+        }
+        return false;
     }
 }

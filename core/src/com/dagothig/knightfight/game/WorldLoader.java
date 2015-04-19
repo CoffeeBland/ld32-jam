@@ -13,7 +13,7 @@ public class WorldLoader {
 
       World world = new World();
 
-      File worldManifestFile = new File("worlds/" + name + ".json");
+      File worldManifestFile = new File("maps/" + name + ".json");
       WorldManifest manifest;
       try {
          manifest = mapper.readValue(worldManifestFile, WorldManifest.class);

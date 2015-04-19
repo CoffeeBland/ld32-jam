@@ -5,11 +5,14 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.dagothig.knightfight.game.Player;
 import com.dagothig.knightfight.game.World;
 import com.dagothig.knightfight.game.WorldLoader;
+import com.dagothig.knightfight.input.KnightFightKbdController;
+import com.dagothig.knightfight.util.Pair;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class GameState extends State<List<Player>> {
-
+public class GameState extends State<Pair<List<Player>, List<KnightFightKbdController>>> {
+    List<KnightFightKbdController> keyboardControllers = new ArrayList<>();
     List<Player> players;
     World world;
 
@@ -20,11 +23,12 @@ public class GameState extends State<List<Player>> {
     }
 
     @Override
-    public void onTransitionInStart(boolean firstTransition, List<Player> players) {
-        super.onTransitionInStart(firstTransition, players);
+    public void onTransitionInStart(boolean firstTransition, Pair<List<Player>, List<KnightFightKbdController>> payload) {
+        super.onTransitionInStart(firstTransition, payload);
 
-        this.players = players;
-        world = WorldLoader.loadEmptyMap();
+        this.keyboardControllers = payload.second;
+        this.players = payload.first;
+        world = WorldLoader.loadMapByName("map1");
         for (Player player : players) {
             player.damsel.pos.add(400 * (float)Math.random(), 400 * (float)Math.random(), 0);
             world.add(player.damsel);
@@ -44,5 +48,21 @@ public class GameState extends State<List<Player>> {
     @Override
     public void update(float delta) {
         world.update(delta);
+    }
+
+    @Override
+    public boolean keyUp(int keycode) {
+        for (KnightFightKbdController kfc : keyboardControllers) {
+            return kfc.keyUp(keycode);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean keyDown(int keycode) {
+        for (KnightFightKbdController kfc : keyboardControllers) {
+            return kfc.keyDown(keycode);
+        }
+        return false;
     }
 }

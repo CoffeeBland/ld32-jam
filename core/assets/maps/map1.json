@@ -3,7 +3,7 @@
     "filename": "maps/map1.png",
     "type": "centered"
   }],
-  "frontends": [],
+  "foregrounds": [],
   "polygons": [
     {
       "deadly": false,
