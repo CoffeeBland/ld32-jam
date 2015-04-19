@@ -55,7 +55,7 @@ public class PlayerState extends State<Void> {
         infoText = new GlyphLayout(infoFont, "Press 'a' to join, 'start' to fight");
     }
 
-    public boolean readyForPlayer() { return players.size() >= 2; }
+    public boolean readyForPlayer() { return players.size() > 1; }
     @Override public boolean shouldBeReused() { return false; }
 
     @Override

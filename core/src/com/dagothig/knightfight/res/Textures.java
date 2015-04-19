@@ -46,7 +46,10 @@ public class Textures {
                 target.drawPixel(x, y, toIntBitsProper(tmpCol.set(source.getPixel(x, y)).mul(color)));
             }
         }
-        return new Texture(target);
+        Texture texture = new Texture(target);
+        source.dispose();
+        target.dispose();
+        return texture;
     }
 
     private static final Map<ImageSheet.Definition, SoftReference<ImageSheet>> imageSheets = new HashMap<>();
@@ -72,6 +75,7 @@ public class Textures {
         Pixmap whitePixelPixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
         whitePixelPixmap.drawPixel(0, 0, 0xFFFFFFFF);
         WHITE_PIXEL = new Texture(whitePixelPixmap);
+        whitePixelPixmap.dispose();
     }
 
     private Textures(){}

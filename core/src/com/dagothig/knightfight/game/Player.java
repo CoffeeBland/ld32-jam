@@ -15,6 +15,9 @@ public class Player implements ControllerListener {
         (this.controller = controller).addListener(this);
         damsel = new Damsel();
     }
+    public Player() {
+        damsel = new Damsel();
+    }
 
     @Override
     public void connected(Controller controller) {

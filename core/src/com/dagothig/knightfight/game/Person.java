@@ -3,6 +3,7 @@ package com.dagothig.knightfight.game;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.dagothig.knightfight.res.SheetAnimator;
 import com.dagothig.knightfight.state.VectorPool;
@@ -80,13 +81,37 @@ public abstract class Person extends Actor {
         return (float)Math.atan2(vec.y, vec.x);
     }
     public float angleAtCollision(Person person, Vector3 vel) {
-        Vector3 pos = VectorPool.V3();
-        pos.set(pos).add(vel);
-        return (float)Math.atan2(pos.y - person.pos.y, pos.x - person.pos.x);
+        Vector3 velPos = VectorPool.V3();
+        velPos.set(pos).add(vel);
+        float angle = (float)Math.atan2(velPos.y - person.pos.y, velPos.x - person.pos.x);
+        VectorPool.claim(velPos);
+        return angle;
+    }
+
+    public Vector2 pointOnRim(PolygonLine line, Vector3 vec) {
+        Vector2 vecTo = VectorPool.V2().set(line.p2.x - pos.x, line.p2.y - pos.y);
+        Vector2 projection = VectorPool.V2().set(line.direction).scl(vecTo.dot(line.direction) / line.direction.dot(line.direction));
+        Vector2 orthogonal = VectorPool.V2().set(vecTo).sub(projection);
+        Vector2 pt = VectorPool.V2().set(orthogonal).scl(radius / orthogonal.len()).add(pos.x, pos.y);
+        VectorPool.claim(vecTo);
+        VectorPool.claim(projection);
+        VectorPool.claim(orthogonal);
+        return pt;
+    }
+    public Float timeToCollision(PolygonLine line, Vector3 vec) {
+        Vector2 refPt = pointOnRim(line, vec);
+
+        VectorPool.claim(refPt);
+        return null;
     }
 
     @Override
     public void update(float delta, World world) {
+        updatePos(delta, world);
+        mainTexture.update(delta);
+    }
+    public void updatePos(float delta, World world) {
+        // Velocities are applied differently when on the ground or not
         if (pos.z < MIN_DISTANCE) {
             velocity.x *= world.groundFriction;
             velocity.y *= world.groundFriction;
@@ -96,44 +121,55 @@ public abstract class Person extends Actor {
             velocity.y *= world.airFriction;
         }
         velocity.z = (velocity.z - world.gravity) * world.airFriction;
+
+        // Cap to ground
         if (pos.z + velocity.z < MIN_DISTANCE) velocity.z = -pos.z;
+
+        if (Math.abs(pos.x) < MIN_DISTANCE && Math.abs(pos.y) < MIN_DISTANCE && Math.abs(pos.z) < MIN_DISTANCE) return;
+
         movement.set(velocity);
-        boolean bounce = false;
         for (Actor actor : world.actorsLayer.actors) {
             if (!(actor instanceof Person) || actor == this) continue;
             Person person = (Person)actor;
             if (!withinHeight(person, movement)) continue;
-            // If we are within he bounds of the person
+            // If we are within the bounds of the person
             float distanceSquared = distanceSquared(person, movement);
             if (distanceSquared < radiusSquared + person.radiusSquared) {
                 // If we are above the person
-                if (pos.z - (person.pos.z + person.height) > -MIN_DISTANCE) {
+                if (pos.z + movement.z - (person.pos.z + person.height) > -MIN_DISTANCE) {
                     velocity.z = -0.5f;
-                    movement.z = pos.z - (person.pos.z + person.height);
+                    movement.z = Math.max(pos.z - (person.pos.z + person.height), movement.z);
                 } // If we are below the person
-                else if (pos.z + height - person.pos.z < MIN_DISTANCE) {
+                else if (pos.z + movement.z + height - person.pos.z < MIN_DISTANCE) {
                     velocity.z = -0.5f;
-                    movement.z = person.pos.z - (pos.z + height);
+                    movement.z = Math.min(person.pos.z - (pos.z + height), movement.z);
                 } // Sideways collision
                 else {
                     Float t = timeToCollision(person, movement);
-                    if (t == null) continue;
+                    if (t == null || t >= 1 || t <= -1) continue;
                     movement.x *= t;
                     movement.y *= t;
                     float movAngle = angleOf(movement);
                     float colAngle = angleAtCollision(person, movement);
                     float newAngle = 2 * colAngle - movAngle;
                     float velN = (float)Math.sqrt(velocity.x * velocity.x + velocity.y * velocity.y);
-                    System.out.println("Had " + movAngle + " Normal at " + colAngle + " New at " + newAngle);
-                    velocity.x = velN * (float)Math.cos(newAngle);
-                    velocity.y = velN * (float)Math.sin(newAngle);
+                    Vector3 tmpVel = VectorPool.V3().set(velocity);
+                    velocity.x = ((velN * -(float)Math.cos(newAngle)) + person.velocity.x) * 0.5f;
+                    velocity.y = ((velN * -(float)Math.sin(newAngle)) + person.velocity.y) * 0.5f;
+                    person.reactToCollision(this, tmpVel, colAngle + (float)Math.PI);
+                    VectorPool.claim(tmpVel);
                 }
             }
-            break;
         }
         pos.add(movement);
+    }
 
-        mainTexture.update(delta);
+    public void reactToCollision(Person person, Vector3 personVel , float colAngle) {
+        float movAngle = angleOf(velocity);
+        float newAngle = 2 * colAngle - movAngle;
+        float velN = (float)Math.sqrt(velocity.x * velocity.x + velocity.y * velocity.y);
+        velocity.x = ((velN * -(float)Math.cos(newAngle)) + personVel.x) * 0.5f;
+        velocity.y = ((velN * -(float)Math.sin(newAngle)) + personVel.y) * 0.5f;
     }
 
     @Override
@@ -145,11 +181,11 @@ public abstract class Person extends Actor {
         batch.draw(shadow, pos.x - shadow.getWidth() / 2, pos.y - shadow.getHeight());
         batch.setColor(Color.WHITE);
 
-        mainTexture.setFrameY(getFrameY(orientation));
-        mainTexture.renderSheet(batch, pos.x - mainShiftX, pos.y - mainShiftY + pos.z, getImageFlipped(orientation), 1);
+        mainTexture.setFrameX(getFrameX(orientation));
+        mainTexture.renderSheet(batch, Math.round(pos.x - mainShiftX), Math.round(pos.y - mainShiftY + pos.z), getImageFlipped(orientation), 1);
     }
 
-    public int getFrameY(float orientation) {
+    public int getFrameX(float orientation) {
         return 0; // TODO: get frameY
     }
     public boolean getImageFlipped(float orientation) {
