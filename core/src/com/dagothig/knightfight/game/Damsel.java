@@ -1,5 +1,6 @@
 package com.dagothig.knightfight.game;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -45,6 +46,7 @@ public class Damsel extends Person {
         SpriteBatch batch = new SpriteBatch();
         FrameBuffer fb = new FrameBuffer(Pixmap.Format.RGBA8888, dress.getWidth(), dress.getHeight(), false);
         batch.enableBlending();
+        batch.setBlendFunction(Gdx.gl.GL_SRC_ALPHA, Gdx.gl.GL_FUNC_ADD);
         batch.setProjectionMatrix(new Matrix4().setToOrtho2D(0, 0, fb.getWidth(), fb.getHeight()));
         fb.begin();
         batch.begin();
@@ -86,7 +88,7 @@ public class Damsel extends Person {
             if (pos.z < MIN_DISTANCE) velocity.z += 10;
         }
 
-        orientation = (float)Math.atan2(yAxis, xAxis);
+        if (xAxis != 0 || yAxis != 0) orientation = (float)Math.atan2(yAxis, xAxis);
         if (pos.z < MIN_DISTANCE) {
             velocity.add(speed * xAxis, speed * yAxis, 0);
         } else {

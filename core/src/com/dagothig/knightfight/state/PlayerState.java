@@ -81,7 +81,6 @@ public class PlayerState extends State<Void> {
 
         for (Pair<? extends KnightFightController, ? extends KnightFightControllerListener> pair: controllerListenerPairs) {
             pair.first.removeListener(pair.second);
-            pair.first.destruct();
         }
     }
 
@@ -152,6 +151,7 @@ public class PlayerState extends State<Void> {
                     players.remove(index);
                     playerGlyphLayouts.remove(index);
                     pair.first.removeListener(pair.second.player);
+                    pair.first.destruct();
                     pair.second.player = null;
                 }
             }

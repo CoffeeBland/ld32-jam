@@ -60,16 +60,22 @@ public class KnightFightXboxController extends KnightFightController implements 
         switch (XboxMappings.Axis.getAxis(axisCode)) {
             case LEFT_HORIZONTAL:
                 axis = KnightFightMappings.Axis.LEFT_HORIZONTAL;
+                break;
             case LEFT_VERTICAL:
                 axis = KnightFightMappings.Axis.LEFT_VERTICAL;
+                break;
             case LEFT_TRIGGER:
                 axis = KnightFightMappings.Axis.LEFT_TRIGGER;
+                break;
             case RIGHT_HORIZONTAL:
                 axis = KnightFightMappings.Axis.RIGHT_HORIZONTAL;
+                break;
             case RIGHT_VERTICAL:
                 axis = KnightFightMappings.Axis.RIGHT_VERTICAL;
+                break;
             case RIGHT_TRIGGER:
                 axis = KnightFightMappings.Axis.RIGHT_TRIGGER;
+                break;
         }
 
         if (axis != null) {
