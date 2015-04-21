@@ -13,6 +13,7 @@ public class SheetAnimator {
     protected int animationId;
     protected final ImageSheet imageSheet;
     protected boolean loop;
+    protected boolean loopingBack;
     protected int frameX = 0, frameY = 0;
     protected float fps, frameLength, durationRemaining;
     protected Listener listener;
@@ -99,10 +100,16 @@ public class SheetAnimator {
                         if (listener != null) listener.onAnimationFinished(animationId, queuedAnimationId);
                         frameY = animations[animationId = queuedAnimationId].first;
                     } else if (loop) {
-                        frameY = animations[animationId].first;
+                        loopingBack = true;
+                        frameY -= 1;
+                    }
+                } else if (frameY == animations[animationId].first) {
+                    if (loop) {
+                        loopingBack = false;
+                        frameY += 1;
                     }
                 } else {
-                    frameY++;
+                    frameY += loopingBack ? -1 : 1;
                 }
             }
         }

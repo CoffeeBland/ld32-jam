@@ -2,10 +2,7 @@ package com.dagothig.knightfight.state;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.dagothig.knightfight.game.Camera;
-import com.dagothig.knightfight.game.Player;
-import com.dagothig.knightfight.game.World;
-import com.dagothig.knightfight.game.WorldLoader;
+import com.dagothig.knightfight.game.*;
 import com.dagothig.knightfight.input.KnightFightKbdController;
 import com.dagothig.knightfight.util.Pair;
 
@@ -33,6 +30,12 @@ public class GameState extends State<Pair<List<Player>, List<KnightFightKbdContr
                 (Camera.WORLD_WIDTH/2) * ((float)Math.random()/2f),
                 (Camera.WORLD_HEIGHT/2) * ((float)Math.random()/2f), 0);
             world.addPlayer(player);
+        }
+        for (int i = 0, n = 2; i < n; i++) {
+            Knight knight = new Knight();
+            knight.pos.x = ((float)Math.random() * 450);
+            knight.pos.y = ((float)Math.random() * 450);
+            world.add(knight);
         }
     }
 

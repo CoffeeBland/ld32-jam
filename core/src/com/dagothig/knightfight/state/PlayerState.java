@@ -104,7 +104,7 @@ public class PlayerState extends State<Void> {
         float cellTop = ladiesFontBottom;
         if (players.size() > 0) {
             float heightPerCell = (ladiesFontBottom - infoTop) / players.size();
-            float ladyCellImgWidth = Definitions.LADY_SHEET.frameWidth;
+            float ladyCellImgWidth = Definitions.LADY.frameWidth;
             for (int i = 0, n = players.size(); i < n; i++) {
                 Player player = players.get(i);
 

@@ -27,19 +27,18 @@ public class Damsel extends Person implements SheetAnimator.Listener {
         HOLD,
         THROWING;
     }
-    public Action action = Action.WALKING;
 
     public Color skinColor, robeHighlightColor, hairColor;
     public float xAxis, yAxis;
 
     public boolean wantsToJump, wantsToThrow;
-    public float speed = 2f, jumpStrength = 15f;
+    public float speed = 2f, jumpStrength = 40f;
     public Damsel() {
-        super(80, 160,
+        super(54, 160,
                 DamselName.getRandomName().name(), new Color(
-                (float)Math.random() * 0.5f + 0.5f,
-                (float)Math.random() * 0.5f + 0.5f,
-                (float)Math.random() * 0.5f + 0.5f,
+                (float)Math.random() * 1f,
+                (float)Math.random() * 1f,
+                (float)Math.random() * 1f,
                 1
         ));
         skinColor = new Color(0.9f * (float)Math.random(), 0.9f * (float)Math.random(), 0.8f * (float)Math.random(), 1);
@@ -48,11 +47,11 @@ public class Damsel extends Person implements SheetAnimator.Listener {
 
         shadow = Textures.get("lady_shadow.png");
 
-        Texture skin = Textures.get("01_peau.png");
-        Texture dress = Textures.get("02_robe.png");
-        Texture hair = Textures.get("03_cheveux.png");
-        Texture eyes = Textures.get("04_yeux.png");
-        Texture dressExtra = Textures.get("05_volants.png");
+        Texture skin = Textures.get("01_skin.png");
+        Texture dress = Textures.get("02_dress.png");
+        Texture hair = Textures.get("03_hair.png");
+        Texture eyes = Textures.get("04_eyes.png");
+        Texture dressExtra = Textures.get("05_panels.png");
 
         // Render to a framebuffer
         SpriteBatch batch = new SpriteBatch();
@@ -84,8 +83,8 @@ public class Damsel extends Person implements SheetAnimator.Listener {
                 new ImageSheet(new ImageSheet.TextureDef(
                         "01_peau.png",
                         fb.getColorBufferTexture(),
-                        Definitions.LADY_SHEET.frameWidth,
-                        Definitions.LADY_SHEET.frameHeight
+                        Definitions.LADY.frameWidth,
+                        Definitions.LADY.frameHeight
                 )),
                 8, true,
                 new Pair<>(0, 2),
@@ -98,12 +97,12 @@ public class Damsel extends Person implements SheetAnimator.Listener {
         mainTexture.setListener(this);
 
         mainShiftX = mainTexture.getImageSheet().getFrameWidth() / 2;
-        mainShiftY = shadow.getHeight() / 2 + 32;
+        mainShiftY = shadow.getHeight() / 2 - 4;
     }
 
     @Override
     public void update(float delta, World world) {
-        switch (action) {
+        /*switch (action) {
             case WALKING:
                 if (wantsToThrow) {
                     mainTexture.playAnimation(ANIMATION_PICKUP, ANIMATION_HOLD);
@@ -124,7 +123,7 @@ public class Damsel extends Person implements SheetAnimator.Listener {
                 break;
             case THROWING:
                 break;
-        }
+        }*/
         if (wantsToThrow) wantsToThrow = false;
         if (wantsToJump) {
             wantsToJump = false;
@@ -141,7 +140,7 @@ public class Damsel extends Person implements SheetAnimator.Listener {
         switch (mainTexture.getAnimationId()) {
             case ANIMATION_WALK:
             case ANIMATION_HOLD:
-                mainTexture.setFps(Math.max(velocity.len() * 3, 3));
+                mainTexture.setFps(Math.max((float)Math.sqrt(velocity.len()) * 5f, 3));
                 break;
         }
 
@@ -150,7 +149,7 @@ public class Damsel extends Person implements SheetAnimator.Listener {
 
     @Override
     public void onAnimationFinished(int previousId, int nextId) {
-        switch (action) {
+        /*switch (action) {
             case THROWING:
             break;
             case WALKING:
@@ -159,6 +158,6 @@ public class Damsel extends Person implements SheetAnimator.Listener {
             break;
             case PICKUP:
             break;
-        }
+        }*/
     }
 }

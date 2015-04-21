@@ -7,5 +7,6 @@ public class Definitions {
     private Definitions() {}
 
     public static ImageSheet.Definition
-            LADY_SHEET = new ImageSheet.Definition("01_peau.png", 220, 307);
+            LADY = new ImageSheet.Definition("01_skin.png", 220, 307),
+            KNIGHT = new ImageSheet.Definition("knight.png", 260, 260);
 }

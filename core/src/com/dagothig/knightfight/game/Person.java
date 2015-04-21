@@ -9,7 +9,9 @@ import com.dagothig.knightfight.res.SheetAnimator;
 import com.dagothig.knightfight.state.VectorPool;
 
 public abstract class Person extends Actor {
-    public static final float MIN_DISTANCE = 0.001f;
+    public static final float
+            MIN_DISTANCE = 0.001f,
+            INERTIA = 0.1f;
 
     public String name;
     public Color color;
@@ -125,26 +127,26 @@ public abstract class Person extends Actor {
         // Cap to ground
         if (pos.z + velocity.z < MIN_DISTANCE) velocity.z = -pos.z;
 
-        if (Math.abs(pos.x) < MIN_DISTANCE && Math.abs(pos.y) < MIN_DISTANCE && Math.abs(pos.z) < MIN_DISTANCE) return;
 
         movement.set(velocity);
+        // Inertia
+        /*if (movement.x < INERTIA && movement.x > -INERTIA) movement.x = 0;
+        if (movement.y < INERTIA && movement.y > -INERTIA) movement.y = 0;
+        if (movement.z < INERTIA && movement.z > -INERTIA) movement.z = 0;*/
+
+        // Don't check for very small deltas (just not worth it)
+        //if (Math.abs(movement.x) < MIN_DISTANCE && Math.abs(movement.y) < MIN_DISTANCE && Math.abs(movement.z) < MIN_DISTANCE) return;
+
         for (Actor actor : world.actorsLayer.actors) {
             if (!(actor instanceof Person) || actor == this) continue;
             Person person = (Person)actor;
-            if (!withinHeight(person, movement)) continue;
+            //if (!withinHeight(person, movement)) continue;
             // If we are within the bounds of the person
             float distanceSquared = distanceSquared(person, movement);
             if (distanceSquared < radiusSquared + person.radiusSquared) {
-                // If we are above the person
-                if (pos.z + movement.z - (person.pos.z + person.height) > -MIN_DISTANCE) {
-                    velocity.z = -0.5f;
-                    movement.z = Math.max(pos.z - (person.pos.z + person.height), movement.z);
-                } // If we are below the person
-                else if (pos.z + movement.z + height - person.pos.z < MIN_DISTANCE) {
-                    velocity.z = -0.5f;
-                    movement.z = Math.min(person.pos.z - (pos.z + height), movement.z);
-                } // Sideways collision
-                else {
+                float top = pos.z + height;
+                float personTop = person.pos.z + person.height;
+                if (pos.z - personTop < MIN_DISTANCE && top - person.pos.z > -MIN_DISTANCE) {
                     Float t = timeToCollision(person, movement);
                     if (t == null || t >= 1 || t <= -1) continue;
                     movement.x *= t;
@@ -158,6 +160,14 @@ public abstract class Person extends Actor {
                     velocity.y = ((velN * -(float)Math.sin(newAngle)) + person.velocity.y) * 0.5f;
                     person.reactToCollision(this, tmpVel, colAngle + (float)Math.PI);
                     VectorPool.claim(tmpVel);
+                } else if (pos.z - personTop > -MIN_DISTANCE && pos.z + movement.z - personTop < MIN_DISTANCE) {
+                    // We are above
+                    velocity.z *= -0.5f;
+                    movement.z = Math.max(pos.z - personTop, movement.z);
+                } else if (top - person.pos.z < MIN_DISTANCE && top + movement.z - person.pos.z > -MIN_DISTANCE) {
+                    // We are below
+                    velocity.z *= -0.5f;
+                    movement.z = Math.min(person.pos.z - top, movement.z);
                 }
             }
         }
@@ -178,7 +188,10 @@ public abstract class Person extends Actor {
         while (orientation < 0) orientation += Math.PI * 2;
 
         batch.setColor(shadowColor);
-        batch.draw(shadow, pos.x - (shadow.getWidth() / 2), pos.y - shadow.getHeight());
+        batch.draw(shadow,
+                Math.round(pos.x - shadow.getWidth() / 2),
+                Math.round(pos.y - shadow.getHeight() / 2)
+        );
         batch.setColor(Color.WHITE);
 
         mainTexture.setFrameX(getFrameX(orientation));

@@ -12,46 +12,51 @@ public class Camera {
 
     protected OrthographicCamera innerCamera = new OrthographicCamera();
 
+    protected float lastRatio, lastX, lastY;
+
     public void update(List<Player> players) {
-        int offsetMaxX = WORLD_WIDTH - Gdx.graphics.getWidth();
-        int offsetMaxY = WORLD_HEIGHT - Gdx.graphics.getHeight();
-
-        int offsetMinX = 0;
-        int offsetMinY = 0;
-
-        // Used to center camera
-        int sumOfPlayerXs = 0;
-        int sumOfPlayerYs = 0;
+        // TODO: clamp to map
 
         // Used to scale/zoom camera
-        int playersMinX = Math.round(players.get(0).damsel.pos.x);
-        int playersMaxX = Math.round(players.get(0).damsel.pos.x);
-        int playersMinY = Math.round(players.get(0).damsel.pos.y);
-        int playersMaxY = Math.round(players.get(0).damsel.pos.y);
+        float playersMinX = Integer.MAX_VALUE;
+        float playersMaxX = Integer.MIN_VALUE;
+        float playersMinY = Integer.MAX_VALUE;
+        float playersMaxY = Integer.MIN_VALUE;
 
         for (Player p : players) {
-            sumOfPlayerXs += p.damsel.pos.x;
-            sumOfPlayerYs += p.damsel.pos.y;
-            if (p.damsel.pos.x < playersMinX) playersMinX = Math.round(p.damsel.pos.x);
-            if (p.damsel.pos.x > playersMaxX) playersMaxX = Math.round(p.damsel.pos.x);
-            if (p.damsel.pos.y < playersMinY) playersMinY = Math.round(p.damsel.pos.y);
-            if (p.damsel.pos.y > playersMaxY) playersMaxY = Math.round(p.damsel.pos.y);
+            playersMinX = Math.min(p.damsel.pos.x, playersMinX);
+            playersMaxX = Math.max(p.damsel.pos.x, playersMaxX);
+            playersMinY = Math.min(p.damsel.pos.y, playersMinY);
+            playersMaxY = Math.max(p.damsel.pos.y + p.damsel.pos.z, playersMaxY);
         }
 
-        int camX = (sumOfPlayerXs/players.size()) - (Gdx.graphics.getWidth()/2);
-        int camY = (sumOfPlayerYs/players.size()) - (Gdx.graphics.getHeight()/2);
+        // Offset to account for the player size (we want the players to be fully encompassed by the camera)
+        playersMinX -= players.get(0).damsel.getVisualWidth() / 2;
+        playersMaxX += players.get(0).damsel.getVisualWidth() / 2;
+        playersMinY -= players.get(0).damsel.shadow.getHeight();
+        playersMaxY += players.get(0).damsel.getVisualHeight() + players.get(0).damsel.shadow.getHeight() / 2;
 
-        if (camX > offsetMaxX) camX = offsetMaxX;
-        if (camX < offsetMinX) camX = offsetMinX;
-        if (camY > offsetMaxY) camY = offsetMaxY;
-        if (camY < offsetMinY) camY = offsetMinY;
+        float deltaX = playersMaxX - playersMinX;
+        float deltaY = playersMaxY - playersMinY;
 
-        innerCamera.setToOrtho(false, playersMaxX - playersMinX + 1200, playersMaxY - playersMinY + 1200);
+        float ratio = Math.max(Math.max(deltaX / (float)Gdx.graphics.getWidth(), deltaY / (float)Gdx.graphics.getHeight()), 1);
+        lastRatio = lastRatio * 0.9f + ratio * 0.1f;
+        lastX = lastX * 0.9f + (playersMinX + deltaX / 2) * 0.1f;
+        lastY = lastY * 0.9f + (playersMinY + deltaY / 2) * 0.1f;
+        ratio = lastRatio;
 
-        innerCamera.translate(
-            camX-innerCamera.position.x * 0.2f,
-            camY-innerCamera.position.y * 0.2f
+        float transformedWidth = Gdx.graphics.getWidth() * ratio;
+        float transformedHeight = Gdx.graphics.getHeight() * ratio;
+
+        innerCamera.setToOrtho(false,
+                transformedWidth,
+                transformedHeight
         );
+        innerCamera.translate(
+                Math.round(lastX - transformedWidth / 2),
+                Math.round(lastY - transformedHeight / 2)
+        );
+
         innerCamera.update();
     }
 
