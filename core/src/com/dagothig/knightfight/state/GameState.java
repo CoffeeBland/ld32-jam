@@ -27,16 +27,21 @@ public class GameState extends State<Pair<List<Player>, List<KnightFightKbdContr
         world = WorldLoader.loadMapByName("map1");
         for (Player player : payload.first) {
             player.damsel.pos.add(
-                (Camera.WORLD_WIDTH/2) * ((float)Math.random()/2f),
-                (Camera.WORLD_HEIGHT/2) * ((float)Math.random()/2f), 0);
+                    ((float)Math.random() * 2000),
+                    ((float)Math.random() * 2000),
+                    0
+            );
             world.addPlayer(player);
         }
-        for (int i = 0, n = 2; i < n; i++) {
+        /*for (int i = 0, n = 30; i < n; i++) {
             Knight knight = new Knight();
-            knight.pos.x = ((float)Math.random() * 450);
-            knight.pos.y = ((float)Math.random() * 450);
+            knight.pos.add(
+                    ((float)Math.random() * 2000),
+                    ((float)Math.random() * 2000),
+                    0
+            );
             world.add(knight);
-        }
+        }*/
     }
 
     @Override

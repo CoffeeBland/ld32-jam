@@ -38,14 +38,11 @@ public abstract class Person extends Actor {
         this.color = color;
     }
 
+    // === Person collision calculations === //
     public float distanceSquared(Person person, Vector3 vel) {
         float dstX = person.pos.x - (pos.x + vel.x);
         float dstY = person.pos.y - (pos.y + vel.y);
         return dstX * dstX + dstY * dstY;
-    }
-    public boolean withinHeight(Person person, Vector3 vel) {
-        float z = pos.z + vel.z;
-        return z < (person.pos.z + person.height) && (z + height) > person.pos.z;
     }
     public Float timeToCollision(Person person, Vector3 vel) {
         /*
@@ -90,6 +87,32 @@ public abstract class Person extends Actor {
         return angle;
     }
 
+    public boolean isWithinDistance(Person person, Vector3 vel) {
+        return distanceSquared(person, vel) - (radiusSquared + person.radiusSquared) < MIN_DISTANCE;
+    }
+    public boolean isWithinHeight(Person person) {
+        return pos.z - (person.pos.z + person.height) < MIN_DISTANCE && pos.z + height - person.pos.z > -MIN_DISTANCE;
+    }
+    public boolean goingIntoFromAbove(Person person, Vector3 vel) {
+        return vel.z < MIN_DISTANCE
+                && pos.z - (person.pos.z + person.height) > -MIN_DISTANCE
+                && pos.z + vel.z - (person.pos.z + person.height) < MIN_DISTANCE;
+    }
+    public boolean goingIntoFromUnder(Person person, Vector3 vel) {
+        return vel.z > -MIN_DISTANCE
+                && (pos.z + height) - person.pos.z < MIN_DISTANCE
+                && (pos.z + height) + vel.z - person.pos.z > -MIN_DISTANCE;
+    }
+
+    public void reactToCollision(Person person, Vector3 personVel , float colAngle) {
+        float movAngle = angleOf(velocity);
+        float newAngle = 2 * colAngle - movAngle;
+        float velN = (float)Math.sqrt(velocity.x * velocity.x + velocity.y * velocity.y);
+        velocity.x = ((velN * -(float)Math.cos(newAngle)) + personVel.x) * 0.5f;
+        velocity.y = ((velN * -(float)Math.sin(newAngle)) + personVel.y) * 0.5f;
+    }
+
+    // === Polygon collision calculations === //
     public Vector2 pointOnRim(PolygonLine line, Vector3 vec) {
         Vector2 vecTo = VectorPool.V2().set(line.p2.x - pos.x, line.p2.y - pos.y);
         Vector2 projection = VectorPool.V2().set(line.direction).scl(vecTo.dot(line.direction) / line.direction.dot(line.direction));
@@ -107,11 +130,6 @@ public abstract class Person extends Actor {
         return null;
     }
 
-    @Override
-    public void update(float delta, World world) {
-        updatePos(delta, world);
-        mainTexture.update(delta);
-    }
     public void updatePos(float delta, World world) {
         // Velocities are applied differently when on the ground or not
         if (pos.z < MIN_DISTANCE) {
@@ -125,28 +143,26 @@ public abstract class Person extends Actor {
         velocity.z = (velocity.z - world.gravity) * world.airFriction;
 
         // Cap to ground
+        // TODO: replace with polygon check
         if (pos.z + velocity.z < MIN_DISTANCE) velocity.z = -pos.z;
 
 
         movement.set(velocity);
         // Inertia
-        /*if (movement.x < INERTIA && movement.x > -INERTIA) movement.x = 0;
+        if (movement.x < INERTIA && movement.x > -INERTIA) movement.x = 0;
         if (movement.y < INERTIA && movement.y > -INERTIA) movement.y = 0;
-        if (movement.z < INERTIA && movement.z > -INERTIA) movement.z = 0;*/
+        if (movement.z < INERTIA && movement.z > -INERTIA) movement.z = 0;
 
         // Don't check for very small deltas (just not worth it)
-        //if (Math.abs(movement.x) < MIN_DISTANCE && Math.abs(movement.y) < MIN_DISTANCE && Math.abs(movement.z) < MIN_DISTANCE) return;
+        if (Math.abs(movement.x) < MIN_DISTANCE && Math.abs(movement.y) < MIN_DISTANCE && Math.abs(movement.z) < MIN_DISTANCE) return;
 
         for (Actor actor : world.actorsLayer.actors) {
+            // We only check collisions with other people (this is high society after all!)
             if (!(actor instanceof Person) || actor == this) continue;
             Person person = (Person)actor;
-            //if (!withinHeight(person, movement)) continue;
-            // If we are within the bounds of the person
-            float distanceSquared = distanceSquared(person, movement);
-            if (distanceSquared < radiusSquared + person.radiusSquared) {
-                float top = pos.z + height;
-                float personTop = person.pos.z + person.height;
-                if (pos.z - personTop < MIN_DISTANCE && top - person.pos.z > -MIN_DISTANCE) {
+
+            if (isWithinDistance(person, movement)) {
+                if (isWithinHeight(person)) {
                     Float t = timeToCollision(person, movement);
                     if (t == null || t >= 1 || t <= -1) continue;
                     movement.x *= t;
@@ -154,34 +170,32 @@ public abstract class Person extends Actor {
                     float movAngle = angleOf(movement);
                     float colAngle = angleAtCollision(person, movement);
                     float newAngle = 2 * colAngle - movAngle;
-                    float velN = (float)Math.sqrt(velocity.x * velocity.x + velocity.y * velocity.y);
+                    float velN = Vector2.len(velocity.x, velocity.y);
                     Vector3 tmpVel = VectorPool.V3().set(velocity);
                     velocity.x = ((velN * -(float)Math.cos(newAngle)) + person.velocity.x) * 0.5f;
                     velocity.y = ((velN * -(float)Math.sin(newAngle)) + person.velocity.y) * 0.5f;
                     person.reactToCollision(this, tmpVel, colAngle + (float)Math.PI);
                     VectorPool.claim(tmpVel);
-                } else if (pos.z - personTop > -MIN_DISTANCE && pos.z + movement.z - personTop < MIN_DISTANCE) {
+                }
+                if (goingIntoFromAbove(person, movement)) {
                     // We are above
-                    velocity.z *= -0.5f;
-                    movement.z = Math.max(pos.z - personTop, movement.z);
-                } else if (top - person.pos.z < MIN_DISTANCE && top + movement.z - person.pos.z > -MIN_DISTANCE) {
+                    velocity.z *= -1;
+                    movement.z = 0;
+                } else if (goingIntoFromUnder(person, movement)) {
                     // We are below
-                    velocity.z *= -0.5f;
-                    movement.z = Math.min(person.pos.z - top, movement.z);
+                    velocity.z *= -1;
+                    movement.z = 0;
                 }
             }
         }
         pos.add(movement);
     }
 
-    public void reactToCollision(Person person, Vector3 personVel , float colAngle) {
-        float movAngle = angleOf(velocity);
-        float newAngle = 2 * colAngle - movAngle;
-        float velN = (float)Math.sqrt(velocity.x * velocity.x + velocity.y * velocity.y);
-        velocity.x = ((velN * -(float)Math.cos(newAngle)) + personVel.x) * 0.5f;
-        velocity.y = ((velN * -(float)Math.sin(newAngle)) + personVel.y) * 0.5f;
+    @Override
+    public void update(float delta, World world) {
+        updatePos(delta, world);
+        mainTexture.update(delta);
     }
-
     @Override
     public void render(SpriteBatch batch, Vector3 pos) {
         orientation %= Math.PI * 2;
@@ -203,14 +217,11 @@ public abstract class Person extends Actor {
 
     public int getFrameX(float orientation) {
         double partial = orientation / Math.PI * 8;
-        if (partial >= 11 && partial < 13) return 0;
-        else if (partial >= 13 && partial < 15 || partial >= 9 && partial < 11) return 1;
-        else if (partial >= 15 && partial < 16 || partial >= 0 && partial < 1 || partial >= 7 && partial < 9) return 2;
-        else if (partial >= 1 && partial < 3 || partial >= 5 && partial < 7) return 3;
-        else if (partial >= 3 || partial < 5) return 4;
-        else {
-            throw new RuntimeException("Orientation was not clamped properly (" + orientation + ")");
-        }
+        // Because our 0 is right and its index is 2, we offset by a 3/4 turn
+        // Then, we mod 16 to have all of our values [0, 16] and absolute the value minus 8 to get a function that is
+        // 0 at bottom (formerly 12) and 8 at top (formerly 4)
+        // finally, because our indices are 0 - 4, we divide by 2
+        return (int)Math.round((Math.abs((partial + 12) % 16 - 8)) / 2);
     }
     public boolean getImageFlipped(float orientation) {
         return orientation >= 5 * (Math.PI / 8) && orientation < 11 * (Math.PI / 8);
