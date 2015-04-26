@@ -1,7 +1,7 @@
-package com.dagothig.knightfight.game;
+package com.dagothig.knightfight.game.world;
 
 import com.badlogic.gdx.math.Vector2;
-import com.dagothig.knightfight.state.VectorPool;
+import com.dagothig.knightfight.util.VectorPool;
 
 /**
  * Created by dagothig on 4/19/15.

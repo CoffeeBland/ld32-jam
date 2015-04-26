@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector3;
 import com.dagothig.knightfight.game.Camera;
 import com.dagothig.knightfight.game.Player;
+import com.dagothig.knightfight.util.VectorPool;
 import com.dagothig.knightfight.input.*;
 import com.dagothig.knightfight.res.Definitions;
 import com.dagothig.knightfight.res.Textures;

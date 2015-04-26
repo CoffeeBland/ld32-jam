@@ -1,48 +1,30 @@
-package com.dagothig.knightfight.game;
+package com.dagothig.knightfight.game.entity;
 
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.dagothig.knightfight.game.entity.Actor;
-import com.dagothig.knightfight.game.entity.Entity;
+import com.dagothig.knightfight.game.Person;
 import com.dagothig.knightfight.game.world.PolygonLine;
 import com.dagothig.knightfight.game.world.World;
-import com.dagothig.knightfight.res.SheetAnimator;
 import com.dagothig.knightfight.util.VectorPool;
 
-public abstract class Person extends Actor {
+/**
+ * Created by dagothig on 4/26/15.
+ */
+public abstract class Cylinder extends Actor {
     public static final float
             MIN_DISTANCE = 0.001f,
             INERTIA = 0.1f;
 
-    public String name;
-    public Color color;
-
-    public SheetAnimator mainTexture;
-    public Texture shadow;
-    public Color shadowColor = new Color(0, 0, 0, 0.3f);
-
-    // Radian angle (0 - 2PI)
-    public float orientation;
-
     public float radius, radiusSquared, height;
 
-    public float mainShiftX, mainShiftY;
-    public final Vector3 velocity = new Vector3();
-    protected final Vector3 movement = new Vector3();
 
-
-    public Person(float radius, float height, String name, Color color) {
+    public Cylinder(float radius, float height) {
         this.radius = radius;
         this.radiusSquared = radius * radius;
         this.height = height;
-        this.name = name;
-        this.color = color;
     }
 
-    // === Person collision calculations === //
+    // === Cylinder collision calculations === //
     public float distanceSquared(Person person, Vector3 vel) {
         float dstX = person.pos.x - (pos.x + vel.x);
         float dstY = person.pos.y - (pos.y + vel.y);
@@ -178,28 +160,28 @@ public abstract class Person extends Actor {
         if (pos.z + velocity.z < MIN_DISTANCE) velocity.z = -pos.z;
 
 
-        movement.set(velocity);
+        Vector3 mov = VectorPool.V3().set(velocity);
         // Inertia
-        if (movement.x < INERTIA && movement.x > -INERTIA) movement.x = 0;
-        if (movement.y < INERTIA && movement.y > -INERTIA) movement.y = 0;
-        if (movement.z < INERTIA && movement.z > -INERTIA) movement.z = 0;
+        if (mov.x < INERTIA && mov.x > -INERTIA) mov.x = 0;
+        if (mov.y < INERTIA && mov.y > -INERTIA) mov.y = 0;
+        if (mov.z < INERTIA && mov.z > -INERTIA) mov.z = 0;
 
         // Don't check for very small deltas (just not worth it)
-        if (Math.abs(movement.x) < MIN_DISTANCE && Math.abs(movement.y) < MIN_DISTANCE && Math.abs(movement.z) < MIN_DISTANCE) return;
+        if (Math.abs(mov.x) < MIN_DISTANCE && Math.abs(mov.y) < MIN_DISTANCE && Math.abs(mov.z) < MIN_DISTANCE) return;
 
         for (Entity entity : world.actorsLayer.entities) {
             // We only check collisions with other people (this is high society after all!)
             if (!(entity instanceof Person) || entity == this) continue;
             Person person = (Person) entity;
 
-            if (isWithinDistance(person, movement)) {
+            if (isWithinDistance(person, mov)) {
                 if (isWithinHeight(person)) {
-                    Float t = timeToCollision(person, movement);
+                    Float t = timeToCollision(person, mov);
                     if (t == null || t >= 1 || t <= -1) continue;
-                    movement.x *= t;
-                    movement.y *= t;
-                    float movAngle = angleOf(movement);
-                    float colAngle = angleAtCollision(person, movement);
+                    mov.x *= t;
+                    mov.y *= t;
+                    float movAngle = angleOf(mov);
+                    float colAngle = angleAtCollision(person, mov);
                     float newAngle = 2 * colAngle - movAngle;
                     float velN = Vector2.len(velocity.x, velocity.y);
                     Vector3 tmpVel = VectorPool.V3().set(velocity);
@@ -208,67 +190,25 @@ public abstract class Person extends Actor {
                     person.reactToCollision(this, tmpVel, colAngle + (float)Math.PI);
                     VectorPool.claim(tmpVel);
                 }
-                if (goingIntoFromAbove(person, movement)) {
+                if (goingIntoFromAbove(person, mov)) {
                     // We are above
                     person.reactToCollision(this, velocity);
                     reactToCollision(person, person.velocity);
-                    movement.z = 0;
-                } else if (goingIntoFromUnder(person, movement)) {
+                    mov.z = 0;
+                } else if (goingIntoFromUnder(person, mov)) {
                     // We are below
                     person.reactToCollision(this, velocity);
                     reactToCollision(person, person.velocity);
-                    movement.z = 0;
+                    mov.z = 0;
                 }
             }
         }
-        pos.add(movement);
+        pos.add(mov);
+        VectorPool.claim(mov);
     }
 
     @Override
     public void update(float delta, World world) {
         updatePos(delta, world);
-        mainTexture.update(delta);
-    }
-    @Override
-    public void render(SpriteBatch batch, Vector3 pos) {
-        orientation %= Math.PI * 2;
-        while (orientation < 0) orientation += Math.PI * 2;
-
-        batch.setColor(shadowColor);
-        batch.draw(shadow,
-                Math.round(pos.x - shadow.getWidth() / 2),
-                Math.round(pos.y - shadow.getHeight() / 2)
-        );
-        batch.setColor(Color.WHITE);
-
-        mainTexture.setFrameX(getFrameX(orientation));
-        renderMain(batch, pos);
-    }
-    public void renderMain(SpriteBatch batch, Vector3 pos) {
-        mainTexture.renderSheet(batch,
-                Math.round(pos.x - mainShiftX),
-                Math.round(pos.y - mainShiftY + pos.z),
-                getImageFlipped(orientation), 1);
-    }
-
-    public int getFrameX(float orientation) {
-        double partial = orientation / Math.PI * 8;
-        // Because our 0 is right and its index is 2, we offset by a 3/4 turn
-        // Then, we mod 16 to have all of our values [0, 16] and absolute the value minus 8 to get a function that is
-        // 0 at bottom (formerly 12) and 8 at top (formerly 4)
-        // finally, because our indices are 0 - 4, we divide by 2
-        return (int)Math.round((Math.abs((partial + 12) % 16 - 8)) / 2);
-    }
-    public boolean getImageFlipped(float orientation) {
-        return orientation >= 5 * (Math.PI / 8) && orientation < 11 * (Math.PI / 8);
-    }
-
-    @Override
-    public int getVisualWidth() {
-        return mainTexture.getImageSheet().getFrameWidth();
-    }
-    @Override
-    public int getVisualHeight() {
-        return mainTexture.getImageSheet().getFrameWidth();
     }
 }

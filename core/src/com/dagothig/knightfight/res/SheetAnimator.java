@@ -14,7 +14,7 @@ public class SheetAnimator {
     protected final ImageSheet imageSheet;
     protected boolean loop;
     protected boolean loopingBack;
-    protected int frameX = 0, frameY = 0;
+    protected int frameX = 0, frameY = 0, step = 1;
     protected float fps, frameLength, durationRemaining;
     protected Listener listener;
 
@@ -79,12 +79,14 @@ public class SheetAnimator {
         queuedAnimationId = resolveId;
         this.frameX = frameX;
         this.frameY = animations[this.animationId = animationId].first;
+        this.step = animations[animationId].second >= animations[animationId].first ? 1 : -1;
         this.durationRemaining = frameLength;
     }
     public void playAnimation(int animationId, int resolveId) {
         queuedFrameX = frameX;
         queuedAnimationId = resolveId;
         this.frameY = animations[this.animationId = animationId].first;
+        this.step = animations[animationId].second >= animations[animationId].first ? 1 : -1;
         this.durationRemaining = frameLength;
     }
 
@@ -99,17 +101,18 @@ public class SheetAnimator {
                         frameX = queuedFrameX;
                         if (listener != null) listener.onAnimationFinished(animationId, queuedAnimationId);
                         frameY = animations[animationId = queuedAnimationId].first;
+                        this.step = animations[animationId].second >= animations[animationId].first ? 1 : -1;
                     } else if (loop) {
                         loopingBack = true;
-                        frameY -= 1;
+                        frameY -= step;
                     }
                 } else if (frameY == animations[animationId].first) {
                     if (loop) {
                         loopingBack = false;
-                        frameY += 1;
+                        frameY += step;
                     }
                 } else {
-                    frameY += loopingBack ? -1 : 1;
+                    frameY += loopingBack ? -step : step;
                 }
             }
         }

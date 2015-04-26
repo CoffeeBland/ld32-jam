@@ -1,4 +1,4 @@
-package com.dagothig.knightfight.game;
+package com.dagothig.knightfight.game.world;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -31,7 +31,7 @@ public class WorldLoader {
       }
 
       for (WorldManifestPolygon p : manifest.polygons) {
-         world.addPolygon(new WorldPolygon(p.points, p.deadly, p.exclusive));
+         world.addPolygon(new Polygon(p.points, p.deadly, p.exclusive));
       }
 
       return world;

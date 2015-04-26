@@ -1,4 +1,4 @@
-package com.dagothig.knightfight.game;
+package com.dagothig.knightfight.game.world;
 
 public class WorldLayerFactory {
 

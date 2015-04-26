@@ -7,10 +7,15 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
+import com.dagothig.knightfight.game.entity.Entity;
+import com.dagothig.knightfight.game.world.World;
 import com.dagothig.knightfight.res.Definitions;
 import com.dagothig.knightfight.res.ImageSheet;
 import com.dagothig.knightfight.res.SheetAnimator;
 import com.dagothig.knightfight.res.Textures;
+import com.dagothig.knightfight.util.VectorPool;
 import com.dagothig.knightfight.util.Pair;
 
 public class Damsel extends Person implements SheetAnimator.Listener {
@@ -25,14 +30,22 @@ public class Damsel extends Person implements SheetAnimator.Listener {
         WALKING,
         PICKUP,
         HOLD,
-        THROWING;
+        THROWING
     }
 
     public Color skinColor, robeHighlightColor, hairColor;
     public float xAxis, yAxis;
+    public Action action = Action.WALKING;
 
     public boolean wantsToJump, wantsToThrow;
-    public float speed = 2f, jumpStrength = 40f;
+    public float
+            speed = 2f,
+            jumpStrength = 40f,
+            pickupRange = 4,
+            pickupRadius = 8,
+            pickupRadiusSquared = pickupRadius * pickupRadius,
+            pickpupStrength = 40;
+
     public Damsel() {
         super(54, 160,
                 DamselName.getRandomName().name(), new Color(
@@ -90,7 +103,7 @@ public class Damsel extends Person implements SheetAnimator.Listener {
                 new Pair<>(0, 2),
                 new Pair<>(3, 5),
                 new Pair<>(6, 8),
-                new Pair<>(4, 4)
+                new Pair<>(5, 3)
         );
         batch.dispose();
         //fb.dispose();
@@ -102,13 +115,31 @@ public class Damsel extends Person implements SheetAnimator.Listener {
 
     @Override
     public void update(float delta, World world) {
-        /*switch (action) {
+        switch (action) {
             case WALKING:
                 if (wantsToThrow) {
                     mainTexture.playAnimation(ANIMATION_PICKUP, ANIMATION_HOLD);
-                    mainTexture.setFps(8);
+                    mainTexture.setFps(16);
                     mainTexture.resetDurationRemaining();
                     action = Action.PICKUP;
+
+                    float cosOr = (float)Math.cos(orientation);
+                    float sinOr = (float)Math.sin(orientation);
+                    Vector3 front = VectorPool.V3().set(pos).add(
+                            cosOr * (radius + pickupRange),
+                            sinOr * (radius + pickupRange),
+                            height / 2
+                    );
+                    for (Entity entity : world.actorsLayer.entities) {
+                        if (entity == this || !(entity instanceof Knight)) continue;
+
+                        Knight knight = (Knight) entity;
+                        if (Vector2.dst2(front.x, front.y, knight.pos.x, knight.pos.y) < knight.radiusSquared + pickupRadiusSquared
+                                && knight.pos.z < front.z
+                                && knight.pos.z + knight.height > front.z) {
+                            knight.velocity.add(0, 0, pickpupStrength);
+                        }
+                    }
                 }
                 break;
             case PICKUP:
@@ -116,19 +147,31 @@ public class Damsel extends Person implements SheetAnimator.Listener {
             case HOLD:
                 if (wantsToThrow) {
                     mainTexture.playAnimation(ANIMATION_THROW, ANIMATION_WALK);
-                    mainTexture.setFps(8);
+                    mainTexture.setFps(24);
                     mainTexture.resetDurationRemaining();
                     action = Action.THROWING;
+
+                    float cosOr = (float)Math.cos(orientation);
+                    float sinOr = (float)Math.sin(orientation);
+                    Vector3 top = VectorPool.V3().set(pos).add(height + pickupRange + pickupRadius);
+                    for (Entity entity : world.actorsLayer.entities) {
+                        if (entity == this || !(entity instanceof Knight)) continue;
+
+                        Knight knight = (Knight) entity;
+                        if (Vector2.dst2(pos.x, pos.y, knight.pos.x, knight.pos.y) < radiusSquared + knight.radiusSquared
+                                && knight.pos.z - top.z < MIN_DISTANCE
+                                && knight.pos.z - (pos.z + height) > -MIN_DISTANCE) {
+                            knight.velocity.add(cosOr * pickpupStrength * 0.5f, sinOr * pickpupStrength * 0.5f, pickpupStrength * 0.5f);
+                        }
+                    }
                 }
                 break;
             case THROWING:
                 break;
-        }*/
-        if (wantsToThrow) wantsToThrow = false;
-        if (wantsToJump) {
-            wantsToJump = false;
-            if (pos.z < MIN_DISTANCE) velocity.z += jumpStrength;
         }
+        if (wantsToJump && pos.z < MIN_DISTANCE) velocity.z += jumpStrength;
+        wantsToThrow = false;
+        wantsToJump = false;
 
         if (xAxis != 0 || yAxis != 0) orientation = (float)Math.atan2(yAxis, xAxis);
         if (pos.z < MIN_DISTANCE) {
@@ -149,15 +192,17 @@ public class Damsel extends Person implements SheetAnimator.Listener {
 
     @Override
     public void onAnimationFinished(int previousId, int nextId) {
-        /*switch (action) {
+        switch (action) {
             case THROWING:
+                action = Action.WALKING;
             break;
             case WALKING:
             break;
             case HOLD:
             break;
             case PICKUP:
+                action = Action.HOLD;
             break;
-        }*/
+        }
     }
 }

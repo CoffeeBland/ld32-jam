@@ -1,11 +1,11 @@
-package com.dagothig.knightfight.game;
+package com.dagothig.knightfight.game.world;
 
-public class WorldPolygon {
+public class Polygon {
     protected boolean deadly;
     protected boolean exclusive;
     protected int[][] points;
 
-    public WorldPolygon(int[][] points, boolean deadly, boolean exclusive) {
+    public Polygon(int[][] points, boolean deadly, boolean exclusive) {
         this.points = points;
         this.deadly = deadly;
         this.exclusive = exclusive;

@@ -1,4 +1,4 @@
-package com.dagothig.knightfight.game;
+package com.dagothig.knightfight.game.world;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 

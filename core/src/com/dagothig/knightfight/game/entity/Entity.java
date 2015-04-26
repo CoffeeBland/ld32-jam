@@ -1,9 +1,11 @@
-package com.dagothig.knightfight.game;
+package com.dagothig.knightfight.game.entity;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector3;
+import com.dagothig.knightfight.game.world.World;
 
-public abstract class Actor {
+public abstract class Entity {
+
     public final Vector3 pos = new Vector3();
 
     public abstract int getVisualWidth();

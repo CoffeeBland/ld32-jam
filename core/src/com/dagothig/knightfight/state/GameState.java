@@ -3,6 +3,8 @@ package com.dagothig.knightfight.state;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.dagothig.knightfight.game.*;
+import com.dagothig.knightfight.game.world.World;
+import com.dagothig.knightfight.game.world.WorldLoader;
 import com.dagothig.knightfight.input.KnightFightKbdController;
 import com.dagothig.knightfight.util.Pair;
 
@@ -33,15 +35,15 @@ public class GameState extends State<Pair<List<Player>, List<KnightFightKbdContr
             );
             world.addPlayer(player);
         }
-        /*for (int i = 0, n = 30; i < n; i++) {
+        for (int i = 0, n = 48; i < n; i++) {
             Knight knight = new Knight();
             knight.pos.add(
                     ((float)Math.random() * 2000),
                     ((float)Math.random() * 2000),
-                    0
+                    ((float)Math.random() * 2000)
             );
             world.add(knight);
-        }*/
+        }
     }
 
     @Override

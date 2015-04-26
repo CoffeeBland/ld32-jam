@@ -1,31 +1,34 @@
-package com.dagothig.knightfight.game;
+package com.dagothig.knightfight.game.world;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Vector3;
+import com.dagothig.knightfight.game.Camera;
+import com.dagothig.knightfight.game.Player;
+import com.dagothig.knightfight.game.entity.Entity;
 import com.dagothig.knightfight.util.ColorUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class World {
-    protected List<WorldPolygon> polygons = new ArrayList<>();
-    protected List<WorldLayer> layers = new ArrayList<>();
-    protected List<Player> players = new ArrayList<>();
-    protected Camera camera;
-    protected ActorsWorldLayer actorsLayer;
+    public List<Polygon> polygons = new ArrayList<>();
+    public List<WorldLayer> layers = new ArrayList<>();
+    public List<Player> players = new ArrayList<>();
+    public Camera camera;
+    public ActorsWorldLayer actorsLayer;
 
     public float airFriction = 0.98f;
-    public float groundFriction = 0.8f;
-    public float gravity = 1.75f;
+    public Vector3 gravity = new Vector3(0, 0, 1.75f);
 
     public World() {
         this.camera = new Camera();
     }
 
-    public void add(Actor actor) {
-        actorsLayer.actors.add(actor);
+    public void add(Entity entity) {
+        actorsLayer.entities.add(entity);
     }
-    public void remove(Actor actor) {
-        actorsLayer.actors.remove(actor);
+    public void remove(Entity entity) {
+        actorsLayer.entities.remove(entity);
     }
 
     public List<WorldLayer> getLayers() {
@@ -36,7 +39,7 @@ public class World {
         this.layers.add(layer);
     }
 
-    public void addPolygon(WorldPolygon polygon) {
+    public void addPolygon(Polygon polygon) {
         this.polygons.add(polygon);
     }
 
@@ -76,4 +79,5 @@ public class World {
     public List<Player> getPlayers() {
         return players;
     }
+
 }
