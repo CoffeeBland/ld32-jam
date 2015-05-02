@@ -3,6 +3,7 @@ package com.dagothig.knightfight.game.entity;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector3;
 import com.dagothig.knightfight.game.world.World;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class Entity {
 
@@ -11,9 +12,9 @@ public abstract class Entity {
     public abstract int getVisualWidth();
     public abstract int getVisualHeight();
 
-    public abstract void update(float delta, World world);
-    public void render(SpriteBatch batch) {
+    public abstract void update(float delta, @NotNull World world);
+    public void render(@NotNull SpriteBatch batch) {
         render(batch, pos);
     }
-    public abstract void render(SpriteBatch batch, Vector3 pos);
+    public abstract void render(@NotNull SpriteBatch batch, @NotNull Vector3 pos);
 }

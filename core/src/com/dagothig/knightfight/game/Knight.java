@@ -9,6 +9,7 @@ import com.dagothig.knightfight.res.SheetAnimator;
 import com.dagothig.knightfight.res.Textures;
 import com.dagothig.knightfight.util.VectorPool;
 import com.dagothig.knightfight.util.Pair;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Created by dagothig on 4/18/15.
@@ -49,7 +50,7 @@ public class Knight extends Person {
     }
 
     @Override
-    public void update(float delta, World world) {
+    public void update(float delta, @NotNull World world) {
         if (mainTexture.getFrameX() == 0) {
             if (pos.z > MIN_DISTANCE) {
                 mainTexture.playAnimation(1, 0, 2, 0);

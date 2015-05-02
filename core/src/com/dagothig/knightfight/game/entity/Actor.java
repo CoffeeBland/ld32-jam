@@ -3,6 +3,8 @@ package com.dagothig.knightfight.game.entity;
 import com.badlogic.gdx.math.Vector3;
 import com.dagothig.knightfight.game.world.World;
 import com.dagothig.knightfight.util.VectorPool;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Created by dagothig on 4/26/15.
@@ -12,11 +14,11 @@ public abstract class Actor extends Entity {
 
     public final Vector3 velocity = new Vector3();
 
-    public abstract void reactToCollision(Collision collision);
-
-    public abstract void resolveShortestCollision(Collision selfCol, Collision outCol, float delta, World world);
+    public abstract void reactToCollision(@NotNull Collision collision);
+    @Nullable
+    public abstract Collision resolveShortestCollision(float delta, @NotNull World world);
     @Override
-    public void update(float delta, World world) {
+    public void update(float delta, @NotNull World world) {
         velocity.add(world.gravity);
 
         velocity.x *= world.airFriction;
@@ -33,19 +35,15 @@ public abstract class Actor extends Entity {
                 break positionCheck;
             }
 
-            Collision selfCol = Collision.col();
-            Collision outCol = Collision.col();
-            resolveShortestCollision(selfCol, outCol, delta, world);
-            if (selfCol.actor != null) {
-                reactToCollision(selfCol);
-                selfCol.actor.reactToCollision(outCol);
+            Collision col = resolveShortestCollision(delta, world);
+            resolveShortestCollision(delta, world).colliding.update(delta, world);
+            if (col != null) {
+                col.colliding.reactToCollision(col);
+                col.collided.reactToCollision(col);
+                Collision.claim(col);
             }
-
-            Collision.claim(selfCol);
-            Collision.claim(outCol);
         }
 
         VectorPool.claim(movement);
     }
-
 }

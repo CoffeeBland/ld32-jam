@@ -11,6 +11,7 @@ import com.dagothig.knightfight.game.world.PolygonLine;
 import com.dagothig.knightfight.game.world.World;
 import com.dagothig.knightfight.res.SheetAnimator;
 import com.dagothig.knightfight.util.VectorPool;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class Person extends Actor {
     public static final float
@@ -225,12 +226,12 @@ public abstract class Person extends Actor {
     }
 
     @Override
-    public void update(float delta, World world) {
+    public void update(float delta, @NotNull World world) {
         updatePos(delta, world);
         mainTexture.update(delta);
     }
     @Override
-    public void render(SpriteBatch batch, Vector3 pos) {
+    public void render(@NotNull SpriteBatch batch, @NotNull Vector3 pos) {
         orientation %= Math.PI * 2;
         while (orientation < 0) orientation += Math.PI * 2;
 

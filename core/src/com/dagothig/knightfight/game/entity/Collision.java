@@ -1,5 +1,7 @@
 package com.dagothig.knightfight.game.entity;
 
+import com.badlogic.gdx.math.Vector3;
+
 import java.util.Stack;
 
 /**
@@ -8,13 +10,27 @@ import java.util.Stack;
 public class Collision {
     protected static final Stack<Collision> pool = new Stack<>();
 
-    public Actor actor;
+    public Actor colliding, collided;
     public float timeToCollision, angleOfCollision;
+    public Vector3 collidingVel;
+
+    public Collision clampAngle() {
+        while (angleOfCollision < 0) angleOfCollision += Math.PI * 2;
+        angleOfCollision %= Math.PI * 2;
+        return this;
+    }
+
+    public Collision reverseAngle() {
+        angleOfCollision = (float)((angleOfCollision + Math.PI) % (Math.PI * 2));
+        return this;
+    }
 
     public Collision reset() {
-        actor = null;
+        colliding = null;
+        collided = null;
         timeToCollision = 0;
         angleOfCollision = 0;
+        collidingVel = null;
         return this;
     }
 

@@ -6,6 +6,7 @@ import com.dagothig.knightfight.game.Person;
 import com.dagothig.knightfight.game.world.PolygonLine;
 import com.dagothig.knightfight.game.world.World;
 import com.dagothig.knightfight.util.VectorPool;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Created by dagothig on 4/26/15.
@@ -208,7 +209,7 @@ public abstract class Cylinder extends Actor {
     }
 
     @Override
-    public void update(float delta, World world) {
+    public void update(float delta, @NotNull World world) {
         updatePos(delta, world);
     }
 }

@@ -17,6 +17,7 @@ import com.dagothig.knightfight.res.SheetAnimator;
 import com.dagothig.knightfight.res.Textures;
 import com.dagothig.knightfight.util.VectorPool;
 import com.dagothig.knightfight.util.Pair;
+import org.jetbrains.annotations.NotNull;
 
 public class Damsel extends Person implements SheetAnimator.Listener {
 
@@ -114,7 +115,7 @@ public class Damsel extends Person implements SheetAnimator.Listener {
     }
 
     @Override
-    public void update(float delta, World world) {
+    public void update(float delta, @NotNull World world) {
         switch (action) {
             case WALKING:
                 if (wantsToThrow) {
