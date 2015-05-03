@@ -15,7 +15,7 @@ public class World {
     public List<WorldLayer> layers = new ArrayList<>();
     public List<Player> players = new ArrayList<>();
     public Camera camera;
-    public ActorsWorldLayer actorsLayer;
+    public ActorsWorldLayer entitiesLayer;
 
     public float airFriction = 0.98f;
     public Vector3 gravity = new Vector3(0, 0, 1.75f);
@@ -25,10 +25,10 @@ public class World {
     }
 
     public void add(Entity entity) {
-        actorsLayer.entities.add(entity);
+        entitiesLayer.entities.add(entity);
     }
     public void remove(Entity entity) {
-        actorsLayer.entities.remove(entity);
+        entitiesLayer.entities.remove(entity);
     }
 
     public List<WorldLayer> getLayers() {
@@ -63,8 +63,8 @@ public class World {
     }
 
     public void addEmptyPlayersLayer() {
-        actorsLayer = new ActorsWorldLayer();
-        layers.add(actorsLayer);
+        entitiesLayer = new ActorsWorldLayer();
+        layers.add(entitiesLayer);
     }
 
     public Camera getCamera() {

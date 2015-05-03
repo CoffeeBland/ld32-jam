@@ -7,36 +7,38 @@ import com.dagothig.knightfight.game.world.PolygonLine;
 import com.dagothig.knightfight.game.world.World;
 import com.dagothig.knightfight.util.VectorPool;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Created by dagothig on 4/26/15.
  */
 public abstract class Cylinder extends Actor {
     public static final float
-            MIN_DISTANCE = 0.001f,
             INERTIA = 0.1f;
 
     public float radius, radiusSquared, height;
 
 
-    public Cylinder(float radius, float height) {
+    public Cylinder(boolean canBeCollided, float mass,
+                    boolean affectedByGravity, boolean affectedByFriction,
+                    float radius, float height) {
+        super(canBeCollided, mass, affectedByGravity, affectedByFriction);
         this.radius = radius;
         this.radiusSquared = radius * radius;
         this.height = height;
     }
 
     // === Cylinder collision calculations === //
-    public float distanceSquared(Person person, Vector3 vel) {
-        float dstX = person.pos.x - (pos.x + vel.x);
-        float dstY = person.pos.y - (pos.y + vel.y);
-        return dstX * dstX + dstY * dstY;
+    public float distanceSquared(@NotNull Cylinder cylinder, @NotNull Vector3 vel) {
+        return Vector2.dst2(pos.x + vel.x, pos.y + vel.y, cylinder.pos.x, cylinder.pos.y);
     }
-    public Float timeToCollision(Person person, Vector3 vel) {
+    @Nullable
+    public Float timeToSideCollision(@NotNull Cylinder cylinder, @NotNull Vector3 vel) {
         /*
         On pose r3 = r1² + r2²
         xd = x1 - x2
         yd = y1 - y2
-        On cherche moment où la distance entre les deux cercles est égale à 0,
+        On cherche le moment où la distance entre les deux cercles est égale à 0,
         ou plutôt: d(r1, r2) = d((x1, y1) + (vx, vt)t - (x2, y2)), résolut pour t
         => r1² + r2² = (x1 + vx*t - x2)² + (y1 + vy*t - y2)²
         <=> r3 = (xd + vx*t)² + (yd + vy*t)²
@@ -49,9 +51,9 @@ public abstract class Cylinder extends Actor {
         t = (-b +/-racine(b² - 4ac)) / 2a
         => a = vx² + vy², b = 2*xd*vx + 2*yd*vy, c = xd² + yd² - r3
         */
-        float r3 = radiusSquared + person.radiusSquared;
-        float xd = pos.x - person.pos.x;
-        float yd = pos.y - person.pos.y;
+        float r3 = radiusSquared + cylinder.radiusSquared;
+        float xd = pos.x - cylinder.pos.x;
+        float yd = pos.y - cylinder.pos.y;
         float a = vel.x * vel.x + vel.y * vel.y;
         float b = 2 * xd * vel.x + 2 * yd * vel.y;
         float c = xd * xd + yd * yd - r3;
@@ -61,51 +63,64 @@ public abstract class Cylinder extends Actor {
         float discriminant = (float)Math.sqrt(discriminantSquared);
         float t1 = (-b + discriminant) / (2 * a);
         float t2 = (-b - discriminant) / (2 * a);
-        return Math.min(t1, t2);
+        return (t1 < -MIN_DISTANCE && t2 < -MIN_DISTANCE ? null :
+                (t1 < 0 ? t2 :
+                (t2 < 0 ? t1 :
+                Math.min(t1, t2))));
     }
-    public float angleOf(Vector3 vec) {
+    @Nullable
+    public Float timeToVerticalCollision(@NotNull Cylinder cylinder, @NotNull Vector3 vel) {
+        if (vel.z == 0) return null;
+        float timeToUnder = (pos.z + height - cylinder.pos.z) / vel.z;
+        float timeToTop = (pos.z + height - cylinder.pos.z) / vel.z;
+        return (timeToUnder < -MIN_DISTANCE && timeToTop < -MIN_DISTANCE ? null :
+                (timeToUnder < 0 ? timeToTop:
+                (timeToTop < 0 ? timeToUnder:
+                Math.min(timeToUnder, timeToTop))));
+    }
+    public static float angleOf(Vector3 vec) {
         return (float)Math.atan2(vec.y, vec.x);
     }
-    public float angleAtCollision(Person person, Vector3 vel) {
+    public float angleAtCollision(@NotNull Cylinder cylinder, @NotNull Vector3 vel) {
         Vector3 velPos = VectorPool.V3();
-        velPos.set(pos).add(vel);
-        float angle = (float)Math.atan2(velPos.y - person.pos.y, velPos.x - person.pos.x);
+        velPos.set(pos).add(vel).sub(cylinder.pos);
+        float angle = angleOf(velPos);
         VectorPool.claim(velPos);
         return angle;
     }
 
-    public boolean isWithinDistance(Person person, Vector3 vel) {
-        return distanceSquared(person, vel) - (radiusSquared + person.radiusSquared) < MIN_DISTANCE;
+    public boolean isWithinDistance(@NotNull Cylinder cylinder, @NotNull Vector3 vel) {
+        return distanceSquared(cylinder, vel) - (radiusSquared + cylinder.radiusSquared) < MIN_DISTANCE;
     }
-    public boolean isWithinDistanceAtPos(Person person, Vector3 pos) {
-        return Vector2.dst2(pos.x, pos.y, person.pos.x, person.pos.y) - (radiusSquared + person.radiusSquared) < MIN_DISTANCE;
+    public boolean isWithinDistanceAtPos(@NotNull Cylinder cylinder, @NotNull Vector3 pos) {
+        return Vector2.dst2(pos.x, pos.y, cylinder.pos.x, cylinder.pos.y) - (radiusSquared + cylinder.radiusSquared) < MIN_DISTANCE;
     }
-    public boolean isWithinHeight(Person person) {
-        return pos.z - (person.pos.z + person.height) < MIN_DISTANCE && pos.z + height - person.pos.z > -MIN_DISTANCE;
+    public boolean isWithinHeight(@NotNull Cylinder cylinder) {
+        return pos.z - (cylinder.pos.z + cylinder.height) < MIN_DISTANCE && pos.z + height - pos.z > -MIN_DISTANCE;
     }
-    public boolean isWithinHeightAtPos(Person person, Vector3 pos) {
-        return pos.z - (person.pos.z + person.height) < MIN_DISTANCE && (pos.z + height) - person.pos.z > -MIN_DISTANCE;
+    public boolean isWithinHeightAtPos(@NotNull Cylinder cylinder, @NotNull Vector3 pos) {
+        return pos.z - (cylinder.pos.z + cylinder.height) < MIN_DISTANCE && (pos.z + height) - cylinder.pos.z > -MIN_DISTANCE;
     }
-    public boolean goingIntoFromAbove(Person person, Vector3 vel) {
+    public boolean goingIntoFromAbove(@NotNull Cylinder cylinder, @NotNull Vector3 vel) {
         return vel.z < MIN_DISTANCE
-                && pos.z - (person.pos.z + person.height) > -MIN_DISTANCE
-                && pos.z + vel.z - (person.pos.z + person.height) < MIN_DISTANCE;
+                && pos.z - (cylinder.pos.z + cylinder.height) > -MIN_DISTANCE
+                && pos.z + vel.z - (cylinder.pos.z + cylinder.height) < MIN_DISTANCE;
     }
-    public boolean goingIntoFromUnder(Person person, Vector3 vel) {
+    public boolean goingIntoFromUnder(@NotNull Cylinder cylinder, @NotNull Vector3 vel) {
         return vel.z > -MIN_DISTANCE
-                && (pos.z + height) - person.pos.z < MIN_DISTANCE
-                && (pos.z + height) + vel.z - person.pos.z > -MIN_DISTANCE;
+                && (pos.z + height) - cylinder.pos.z < MIN_DISTANCE
+                && (pos.z + height) + vel.z - cylinder.pos.z > -MIN_DISTANCE;
     }
 
-    public boolean isInCollision(World world, Vector3 vel) {
+    public boolean isInCollision(@NotNull World world, @NotNull Vector3 vel) {
         Vector3 newPos = VectorPool.V3().set(pos).add(vel);
 
         boolean hadCol = false;
-        for (Entity entity : world.actorsLayer.entities) {
-            if (!(entity instanceof Person) || entity == this) continue;
-            Person person = (Person) entity;
+        for (Entity entity : world.entitiesLayer.entities) {
+            if (!(entity instanceof Cylinder) || entity == this) continue;
+            Cylinder cylinder = (Cylinder) entity;
 
-            if (isWithinDistanceAtPos(person, newPos) && isWithinHeightAtPos(person, newPos)) {
+            if (isWithinDistanceAtPos(cylinder, newPos) && isWithinHeightAtPos(cylinder, newPos)) {
                 hadCol = true;
                 break;
             }
@@ -137,7 +152,7 @@ public abstract class Cylinder extends Actor {
         VectorPool.claim(orthogonal);
         return pt;
     }
-    public Float timeToCollision(PolygonLine line, Vector3 vec) {
+    public Float timeToSideCollision(PolygonLine line, Vector3 vec) {
         Vector2 refPt = pointOnRim(line, vec);
 
         VectorPool.claim(refPt);
@@ -170,7 +185,7 @@ public abstract class Cylinder extends Actor {
         // Don't check for very small deltas (just not worth it)
         if (Math.abs(mov.x) < MIN_DISTANCE && Math.abs(mov.y) < MIN_DISTANCE && Math.abs(mov.z) < MIN_DISTANCE) return;
 
-        for (Entity entity : world.actorsLayer.entities) {
+        for (Entity entity : world.entitiesLayer.entities) {
             // We only check collisions with other people (this is high society after all!)
             if (!(entity instanceof Person) || entity == this) continue;
             Person person = (Person) entity;
@@ -209,7 +224,68 @@ public abstract class Cylinder extends Actor {
     }
 
     @Override
+    public void reactToCollision(@NotNull Collision col) {
+        switch (col.type) {
+            case SIDE:
+
+                float movAngle = angleOf(velocity);
+                float newAngle = 2 * col.angleOfCollision - movAngle;
+                float velN = (float)Math.sqrt(velocity.x * velocity.x + velocity.y * velocity.y);
+                velocity.x = ((velN * -(float)Math.cos(newAngle)) + personVel.x) * 0.5f;
+                velocity.y = ((velN * -(float)Math.sin(newAngle)) + personVel.y) * 0.5f;
+                break;
+            case VERTICAL:
+                break;
+        }
+    }
+
+    @Override
     public void update(float delta, @NotNull World world) {
         updatePos(delta, world);
+    }
+
+    @NotNull
+    public Collision getSideCollision(@NotNull Collision col, @NotNull Cylinder cylinder, @NotNull Vector3 vel, float timeToCol) {
+        col.timeToCollision = timeToCol;
+        col.angleOfCollision = angleAtCollision(cylinder, vel);
+        col.type = Collision.Type.SIDE;
+
+        return col;
+    }
+    @NotNull
+    public Collision getVerticalCollision(@NotNull Collision col, @NotNull Cylinder cylinder, @NotNull Vector3 vel, float timeToCol) {
+        col.timeToCollision = timeToCol;
+        col.type = Collision.Type.VERTICAL;
+
+        return col;
+    }
+    @Nullable
+    public Collision getCollision(@NotNull Cylinder cylinder, @NotNull Vector3 vel) {
+        Float ts = timeToSideCollision(cylinder, vel);
+        Float tv = timeToVerticalCollision(cylinder, vel);
+        if (ts == null && tv == null) return null;
+        Collision col = Collision.col();
+        col.colliding = this;
+        col.collided = cylinder;
+        col.collidingVel = vel;
+        if (tv == null) return getSideCollision(col, cylinder, vel, ts);
+        if (ts == null) return getVerticalCollision(col, cylinder, vel, tv);
+        if (ts <= tv) return getSideCollision(col, cylinder, vel, ts);
+        if (tv <= ts) return getVerticalCollision(col, cylinder, vel, tv);
+    }
+    @Nullable
+    public Collision getCollision(@NotNull PolygonEntity polygon, @NotNull Vector3 vel) {
+        return null;
+    }
+    @Nullable
+    @Override
+    public Collision getCollision(@NotNull Entity entity, @NotNull Vector3 vel) {
+        if (entity instanceof Cylinder) {
+            return getCollision((Cylinder)entity, vel);
+        }
+        if (entity instanceof PolygonEntity) {
+            return getCollision((PolygonEntity)entity, vel);
+        }
+        return null;
     }
 }

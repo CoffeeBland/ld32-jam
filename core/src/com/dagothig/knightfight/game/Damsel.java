@@ -131,7 +131,7 @@ public class Damsel extends Person implements SheetAnimator.Listener {
                             sinOr * (radius + pickupRange),
                             height / 2
                     );
-                    for (Entity entity : world.actorsLayer.entities) {
+                    for (Entity entity : world.entitiesLayer.entities) {
                         if (entity == this || !(entity instanceof Knight)) continue;
 
                         Knight knight = (Knight) entity;
@@ -155,7 +155,7 @@ public class Damsel extends Person implements SheetAnimator.Listener {
                     float cosOr = (float)Math.cos(orientation);
                     float sinOr = (float)Math.sin(orientation);
                     Vector3 top = VectorPool.V3().set(pos).add(height + pickupRange + pickupRadius);
-                    for (Entity entity : world.actorsLayer.entities) {
+                    for (Entity entity : world.entitiesLayer.entities) {
                         if (entity == this || !(entity instanceof Knight)) continue;
 
                         Knight knight = (Knight) entity;

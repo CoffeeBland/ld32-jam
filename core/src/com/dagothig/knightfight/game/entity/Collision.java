@@ -1,6 +1,7 @@
 package com.dagothig.knightfight.game.entity;
 
 import com.badlogic.gdx.math.Vector3;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Stack;
 
@@ -10,9 +11,12 @@ import java.util.Stack;
 public class Collision {
     protected static final Stack<Collision> pool = new Stack<>();
 
-    public Actor colliding, collided;
-    public float timeToCollision, angleOfCollision;
+    public Actor colliding;
+    public Actor collided;
+    public float timeToCollision;
+    public float angleOfCollision;
     public Vector3 collidingVel;
+    public Type type;
 
     public Collision clampAngle() {
         while (angleOfCollision < 0) angleOfCollision += Math.PI * 2;
@@ -31,14 +35,20 @@ public class Collision {
         timeToCollision = 0;
         angleOfCollision = 0;
         collidingVel = null;
+        type = null;
         return this;
     }
 
+    @NotNull
     public static Collision col() {
         if (pool.isEmpty()) return new Collision();
         else return pool.pop();
     }
-    public static void claim(Collision col) {
+    public static void claim(@NotNull Collision col) {
         pool.push(col.reset());
+    }
+
+    public enum Type {
+        SIDE, VERTICAL
     }
 }

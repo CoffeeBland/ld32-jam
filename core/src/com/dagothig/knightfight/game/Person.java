@@ -119,7 +119,7 @@ public abstract class Person extends Actor {
         Vector3 newPos = VectorPool.V3().set(pos).add(vel);
 
         boolean hadCol = false;
-        for (Entity entity : world.actorsLayer.entities) {
+        for (Entity entity : world.entitiesLayer.entities) {
             if (!(entity instanceof Person) || entity == this) continue;
             Person person = (Person) entity;
 
@@ -188,7 +188,7 @@ public abstract class Person extends Actor {
         // Don't check for very small deltas (just not worth it)
         if (Math.abs(movement.x) < MIN_DISTANCE && Math.abs(movement.y) < MIN_DISTANCE && Math.abs(movement.z) < MIN_DISTANCE) return;
 
-        for (Entity entity : world.actorsLayer.entities) {
+        for (Entity entity : world.entitiesLayer.entities) {
             // We only check collisions with other people (this is high society after all!)
             if (!(entity instanceof Person) || entity == this) continue;
             Person person = (Person) entity;

@@ -8,6 +8,13 @@ import org.jetbrains.annotations.NotNull;
 public abstract class Entity {
 
     public final Vector3 pos = new Vector3();
+    public boolean canBeCollided;
+    public float mass;
+
+    public Entity(boolean canBeCollided, float mass) {
+        this.canBeCollided = canBeCollided;
+        this.mass = mass;
+    }
 
     public abstract int getVisualWidth();
     public abstract int getVisualHeight();
