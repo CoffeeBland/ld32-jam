@@ -19,6 +19,8 @@ public abstract class Entity {
     public abstract int getVisualWidth();
     public abstract int getVisualHeight();
 
+    public void reactToCollision(@NotNull Collision collision) {}
+
     public abstract void update(float delta, @NotNull World world);
     public void render(@NotNull SpriteBatch batch) {
         render(batch, pos);

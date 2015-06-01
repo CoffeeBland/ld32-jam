@@ -12,29 +12,25 @@ public class Collision {
     protected static final Stack<Collision> pool = new Stack<>();
 
     public Actor colliding;
-    public Actor collided;
+    public Entity collided;
     public float timeToCollision;
-    public float angleOfCollision;
+    /**
+     * Before timeToCollision is applied
+     */
     public Vector3 collidingVel;
+    public Vector3 collidingPoint;
     public Type type;
 
-    public Collision clampAngle() {
-        while (angleOfCollision < 0) angleOfCollision += Math.PI * 2;
-        angleOfCollision %= Math.PI * 2;
-        return this;
-    }
+    protected Collision() {
 
-    public Collision reverseAngle() {
-        angleOfCollision = (float)((angleOfCollision + Math.PI) % (Math.PI * 2));
-        return this;
     }
 
     public Collision reset() {
         colliding = null;
         collided = null;
         timeToCollision = 0;
-        angleOfCollision = 0;
         collidingVel = null;
+        collidingPoint = null;
         type = null;
         return this;
     }
@@ -49,6 +45,6 @@ public class Collision {
     }
 
     public enum Type {
-        SIDE, VERTICAL
+        SIDE, VERTICAL, BOTH
     }
 }
